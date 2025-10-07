@@ -1,4 +1,6 @@
 <script>
+  import { slide } from 'svelte/transition';
+
   // Placeholder data - will be replaced with Appwrite data later
   let questions = [
     {
@@ -6,26 +8,47 @@
       subject: 'Mathematics',
       question: 'What is 2 + 2?',
       options: ['2', '3', '4', '5'],
-      correctAnswer: 2
+      correctAnswer: 2,
+      explanation: 'Addition is a basic arithmetic operation. When we add 2 and 2, we get 4. This is a fundamental concept in mathematics.'
     },
     {
       id: 2,
       subject: 'Science',
       question: 'What is the chemical symbol for water?',
       options: ['H2O', 'CO2', 'O2', 'NaCl'],
-      correctAnswer: 0
+      correctAnswer: 0,
+      explanation: 'Water is composed of two hydrogen atoms and one oxygen atom, hence the chemical formula H2O. The "2" in H2O indicates there are two hydrogen atoms bonded to one oxygen atom.'
     },
     {
       id: 3,
       subject: 'History',
       question: 'In which year did World War II end?',
       options: ['1943', '1944', '1945', '1946'],
+      correctAnswer: 2,
+      explanation: 'World War II ended in 1945. Germany surrendered on May 8, 1945 (V-E Day), and Japan surrendered on August 15, 1945 (V-J Day), officially ending the war.'
+    },
+    {
+      id: 4,
+      subject: 'Geography',
+      question: 'What is the capital of France?',
+      options: ['London', 'Berlin', 'Paris', 'Madrid'],
+      correctAnswer: 2
+      // No explanation for this question
+    },
+    {
+      id: 1759826383797,
+      subject: 'Geography',
+      question: "Consider the following countries:\n\n1. Benin\n\n2. Cameroon\n\n3. Chad\n\n4. Democratic Republic of Congo\n\nWhich of the countries given above borders Nigeria?",
+      options: ["1 and 2 only", "2 and 3 only", "1, 2 and 3", "2, 3 and 4"],
       correctAnswer: 2
     }
   ];
 
   let searchQuery = '';
   let selectedSubject = 'all';
+
+  // Track which explanations are expanded
+  let expandedExplanations = {};
 
   // Get unique subjects
   $: subjects = ['all', ...new Set(questions.map(q => q.subject))];
@@ -36,6 +59,12 @@
     const matchesSubject = selectedSubject === 'all' || q.subject === selectedSubject;
     return matchesSearch && matchesSubject;
   });
+
+  // Toggle explanation visibility
+  function toggleExplanation(questionId) {
+    expandedExplanations[questionId] = !expandedExplanations[questionId];
+    expandedExplanations = expandedExplanations; // Trigger reactivity
+  }
 </script>
 
 <svelte:head>
@@ -109,6 +138,35 @@
               </div>
             {/each}
           </div>
+
+          <!-- Explanation Section -->
+          {#if question.explanation}
+            <div class="explanation-section">
+              <button
+                class="explanation-toggle"
+                on:click={() => toggleExplanation(question.id)}
+                aria-expanded={expandedExplanations[question.id] || false}
+              >
+                <span class="toggle-icon" class:expanded={expandedExplanations[question.id]}>
+                  ▶
+                </span>
+                <span class="toggle-text">
+                  {expandedExplanations[question.id] ? 'Hide' : 'Show'} Explanation
+                </span>
+              </button>
+              
+              {#if expandedExplanations[question.id]}
+                <div class="explanation-content" transition:slide={{ duration: 300 }}>
+                  <div class="explanation-header">
+                    <span class="explanation-icon">💡</span>
+                    <span class="explanation-label">Explanation</span>
+                  </div>
+                  <p class="explanation-text">{question.explanation}</p>
+                </div>
+              {/if}
+            </div>
+          {/if}
+
           <div class="question-actions">
             <button class="btn-secondary">Edit</button>
             <button class="btn-danger">Delete</button>
@@ -316,6 +374,81 @@
     color: #667eea;
     font-weight: 700;
     font-size: 1.2rem;
+  }
+
+  /* Explanation Section */
+  .explanation-section {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .explanation-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #667eea;
+  }
+
+  .explanation-toggle:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+
+  .toggle-icon {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+    display: inline-block;
+  }
+
+  .toggle-icon.expanded {
+    transform: rotate(90deg);
+  }
+
+  .toggle-text {
+    flex: 1;
+    text-align: left;
+  }
+
+  .explanation-content {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-left: 3px solid #667eea;
+    border-radius: 8px;
+  }
+
+  .explanation-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .explanation-icon {
+    font-size: 1.2rem;
+  }
+
+  .explanation-label {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .explanation-text {
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
   }
 
   .question-actions {

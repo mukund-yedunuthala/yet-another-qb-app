@@ -1,55 +1,62 @@
 <script>
+  import { onMount } from 'svelte';
+  import { tablesDB, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '$lib/appwrite';
   import { fade, fly, scale } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
 
-  // Placeholder data - will be replaced with Appwrite data later
-  let allQuestions = [
-    {
-      id: 1,
-      subject: 'Mathematics',
-      question: 'What is 2 + 2?',
-      options: ['2', '3', '4', '5'],
-      correctAnswer: 2,
-      explanation: 'Addition is a basic arithmetic operation. When we add 2 and 2, we get 4.',
-      learnt: false
-    },
-    {
-      id: 2,
-      subject: 'Science',
-      question: 'What is the chemical symbol for water?',
-      options: ['H2O', 'CO2', 'O2', 'NaCl'],
-      correctAnswer: 0,
-      explanation: 'Water is composed of two hydrogen atoms and one oxygen atom, hence H2O.',
-      learnt: false
-    },
-    {
-      id: 3,
-      subject: 'History',
-      question: 'In which year did World War II end?',
-      options: ['1943', '1944', '1945', '1946'],
-      correctAnswer: 2,
-      explanation: 'World War II ended in 1945 with Germany surrendering in May and Japan in August.',
-      learnt: false
-    },
-    {
-      id: 4,
-      subject: 'Geography',
-      question: 'What is the capital of France?',
-      options: ['London', 'Berlin', 'Paris', 'Madrid'],
-      correctAnswer: 2,
-      explanation: 'Paris has been the capital of France since the 12th century.',
-      learnt: false
-    },
-    {
-      id: 5,
-      subject: 'Literature',
-      question: 'Who wrote "Romeo and Juliet"?',
-      options: ['Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Mark Twain'],
-      correctAnswer: 1,
-      explanation: 'William Shakespeare wrote this famous tragedy in the early years of his career.',
-      learnt: true
+  let allQuestions = [];
+  let loading = true;
+  
+  // Fetch questions
+  async function fetchQuestions() {
+    loading = true;
+    try {
+      const response = await tablesDB.listRows(
+        PUBLIC_APPWRITE_DATABASE_ID, //databaseId
+        PUBLIC_APPWRITE_TABLE_ID,
+      );
+      
+      allQuestions = response.rows.map(row => ({
+        id: row.$id,
+        subject: row.subject,
+        question: row.question,
+        options: [row.optionA, row.optionB, row.optionC, row.optionD],
+        correctAnswer: row.correctAnswer,
+        explanation: row.explanation,
+        learnt: row.learnt
+      }));
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    } finally {
+      loading = false;
     }
-  ];
+  }
+  
+  // Mark question as learnt (update in database)
+  async function markAsLearnt() {
+    try {
+      await tablesDB.updateRow(
+        import.meta.env.PUBLIC_APPWRITE_DATABASE_ID,
+        import.meta.env.PUBLIC_APPWRITE_TABLE_ID,
+        currentQuestion.id,
+        { learnt: true }
+      );
+      
+      // Update local state
+      const questionIndex = allQuestions.findIndex(q => q.id === currentQuestion.id);
+      if (questionIndex !== -1) {
+        allQuestions[questionIndex].learnt = true;
+        allQuestions = allQuestions;
+        sessionStats.learnt++;
+      }
+    } catch (error) {
+      console.error('Error marking as learnt:', error);
+    }
+  }
+  
+  onMount(() => {
+    fetchQuestions();
+  });
 
   // Session state
   let sessionActive = false;
@@ -126,19 +133,6 @@
       sessionStats.correct++;
     } else {
       sessionStats.incorrect++;
-    }
-  }
-
-  // Mark question as learnt
-  function markAsLearnt() {
-    const questionIndex = allQuestions.findIndex(q => q.id === currentQuestion.id);
-    if (questionIndex !== -1) {
-      allQuestions[questionIndex].learnt = true;
-      allQuestions = allQuestions; // Trigger reactivity
-      sessionStats.learnt++;
-      
-      // TODO: Update in Appwrite database
-      console.log('Marked as learnt:', currentQuestion.id);
     }
   }
 

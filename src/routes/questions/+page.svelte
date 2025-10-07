@@ -1,54 +1,48 @@
 <script>
+  import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
+  import { tablesDB, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '$lib/appwrite';
 
-  // Placeholder data - will be replaced with Appwrite data later
-  let questions = [
-    {
-      id: 1,
-      subject: 'Mathematics',
-      question: 'What is 2 + 2?',
-      options: ['2', '3', '4', '5'],
-      correctAnswer: 2,
-      explanation: 'Addition is a basic arithmetic operation. When we add 2 and 2, we get 4. This is a fundamental concept in mathematics.'
-    },
-    {
-      id: 2,
-      subject: 'Science',
-      question: 'What is the chemical symbol for water?',
-      options: ['H2O', 'CO2', 'O2', 'NaCl'],
-      correctAnswer: 0,
-      explanation: 'Water is composed of two hydrogen atoms and one oxygen atom, hence the chemical formula H2O. The "2" in H2O indicates there are two hydrogen atoms bonded to one oxygen atom.'
-    },
-    {
-      id: 3,
-      subject: 'History',
-      question: 'In which year did World War II end?',
-      options: ['1943', '1944', '1945', '1946'],
-      correctAnswer: 2,
-      explanation: 'World War II ended in 1945. Germany surrendered on May 8, 1945 (V-E Day), and Japan surrendered on August 15, 1945 (V-J Day), officially ending the war.'
-    },
-    {
-      id: 4,
-      subject: 'Geography',
-      question: 'What is the capital of France?',
-      options: ['London', 'Berlin', 'Paris', 'Madrid'],
-      correctAnswer: 2
-      // No explanation for this question
-    },
-    {
-      id: 1759826383797,
-      subject: 'Geography',
-      question: "Consider the following countries:\n\n1. Benin\n\n2. Cameroon\n\n3. Chad\n\n4. Democratic Republic of Congo\n\nWhich of the countries given above borders Nigeria?",
-      options: ["1 and 2 only", "2 and 3 only", "1, 2 and 3", "2, 3 and 4"],
-      correctAnswer: 2
-    }
-  ];
-
+  let questions = [];
+  let loading = true;
+  let error = null;
   let searchQuery = '';
   let selectedSubject = 'all';
-
-  // Track which explanations are expanded
   let expandedExplanations = {};
+// Fetch questions from Appwrite
+  async function fetchQuestions() {
+    loading = true;
+    error = null;
+    
+    try {
+      const response = await tablesDB.listRows(
+        PUBLIC_APPWRITE_DATABASE_ID, //databaseId
+        PUBLIC_APPWRITE_TABLE_ID,
+      );
+      
+      // Transform rows to match our question format
+      questions = response.rows.map(row => ({
+        id: row.$id,
+        subject: row.subject,
+        question: row.question,
+        options: [row.optionA, row.optionB, row.optionC, row.optionD],
+        correctAnswer: row.correctAnswer,
+        explanation: row.explanation,
+        learnt: row.learnt
+      }));
+      
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+      error = 'Failed to load questions. Please try again.';
+    } finally {
+      loading = false;
+    }
+  }
+
+  // Load questions on component mount
+  onMount(() => {
+    fetchQuestions();
+  });
 
   // Get unique subjects
   $: subjects = ['all', ...new Set(questions.map(q => q.subject))];
@@ -63,7 +57,7 @@
   // Toggle explanation visibility
   function toggleExplanation(questionId) {
     expandedExplanations[questionId] = !expandedExplanations[questionId];
-    expandedExplanations = expandedExplanations; // Trigger reactivity
+    expandedExplanations = expandedExplanations;
   }
 </script>
 
@@ -77,50 +71,62 @@
     <p class="page-subtitle">Browse and manage your questions</p>
   </div>
 
-  <div class="filters">
-    <div class="search-box">
-      <input
-        type="text"
-        placeholder="Search questions..."
-        bind:value={searchQuery}
-        class="search-input"
-      />
+  {#if loading}
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading questions...</p>
     </div>
-
-    <div class="filter-box">
-      <select bind:value={selectedSubject} class="subject-filter">
-        {#each subjects as subject}
-          <option value={subject}>
-            {subject === 'all' ? 'All Subjects' : subject}
-          </option>
-        {/each}
-      </select>
+  {:else if error}
+    <div class="error-state">
+      <p>{error}</p>
+      <button class="btn-primary" on:click={fetchQuestions}>Retry</button>
     </div>
-  </div>
-
-  <div class="stats">
-    <div class="stat-card">
-      <span class="stat-number">{questions.length}</span>
-      <span class="stat-label">Total Questions</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-number">{subjects.length - 1}</span>
-      <span class="stat-label">Subjects</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-number">{filteredQuestions.length}</span>
-      <span class="stat-label">Filtered</span>
-    </div>
-  </div>
-
-  <div class="questions-list">
-    {#if filteredQuestions.length === 0}
-      <div class="empty-state">
-        <p>No questions found. Try adjusting your filters or add some questions!</p>
-        <a href="/add" class="btn-primary">Add Your First Question</a>
+  {:else}
+    <div class="filters">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search questions..."
+          bind:value={searchQuery}
+          class="search-input"
+        />
       </div>
-    {:else}
-      {#each filteredQuestions as question (question.id)}
+
+      <div class="filter-box">
+        <select bind:value={selectedSubject} class="subject-filter">
+          {#each subjects as subject}
+            <option value={subject}>
+              {subject === 'all' ? 'All Subjects' : subject}
+            </option>
+          {/each}
+        </select>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <span class="stat-number">{questions.length}</span>
+        <span class="stat-label">Total Questions</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{subjects.length - 1}</span>
+        <span class="stat-label">Subjects</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{filteredQuestions.length}</span>
+        <span class="stat-label">Filtered</span>
+      </div>
+    </div>
+
+
+    <div class="questions-list">
+      {#if filteredQuestions.length === 0}
+        <div class="empty-state">
+          <p>No questions found. Try adjusting your filters or add some questions!</p>
+          <a href="/add" class="btn-primary">Add Your First Question</a>
+        </div>
+      {:else}
+        {#each filteredQuestions as question (question.id)}
         <div class="question-card">
           <div class="question-header">
             <span class="subject-badge">{question.subject}</span>
@@ -173,11 +179,50 @@
           </div>
         </div>
       {/each}
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
+
+  .loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .error-state p {
+    color: #e53e3e;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
   .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { tablesDB, ID, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '$lib/appwrite';
 
   // Form state
   let formData = {
@@ -65,46 +66,52 @@
 
     isSubmitting = true;
 
-    // Simulate API call (replace with Appwrite later)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      // Create row in Appwrite
+      const response = await tablesDB.createRow(
+        PUBLIC_APPWRITE_DATABASE_ID, //databaseId
+        PUBLIC_APPWRITE_TABLE_ID,
+        ID.unique(),
+        {
+          question: formData.question.trim(),
+          optionA: formData.optionA.trim(),
+          optionB: formData.optionB.trim(),
+          optionC: formData.optionC.trim(),
+          optionD: formData.optionD.trim(),
+          correctAnswer: parseInt(formData.correctAnswer),
+          subject: formData.subject.trim(),
+          explanation: formData.explanation.trim() || null,
+          learnt: false
+        }
+      );
 
-    // Create question object
-    const question = {
-      id: Date.now(),
-      question: formData.question,
-      options: [
-        formData.optionA,
-        formData.optionB,
-        formData.optionC,
-        formData.optionD
-      ],
-      correctAnswer: parseInt(formData.correctAnswer),
-      subject: formData.subject,
-      explanation: formData.explanation
-    };
+      console.log('Question created:', response);
 
-    console.log('Question created:', question);
-    // TODO: Save to Appwrite here
+      showSuccess = true;
 
-    isSubmitting = false;
-    showSuccess = true;
+      // Reset form
+      formData = {
+        question: '',
+        optionA: '',
+        optionB: '',
+        optionC: '',
+        optionD: '',
+        correctAnswer: '',
+        subject: '',
+        explanation: ''
+      };
 
-    // Reset form
-    formData = {
-      question: '',
-      optionA: '',
-      optionB: '',
-      optionC: '',
-      optionD: '',
-      correctAnswer: '',
-      subject: '',
-      explanation: ''
-    };
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        showSuccess = false;
+      }, 3000);
 
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      showSuccess = false;
-    }, 3000);
+    } catch (error) {
+      console.error('Error creating question:', error);
+      errors.submit = 'Failed to create question. Please try again.';
+    } finally {
+      isSubmitting = false;
+    }
   }
 
   // Handle input changes
@@ -134,6 +141,13 @@
     <div class="success-message">
       <span class="success-icon">✓</span>
       Question added successfully!
+    </div>
+  {/if}
+
+  {#if errors.submit}
+    <div class="error-banner">
+      <span class="error-icon">⚠</span>
+      {errors.submit}
     </div>
   {/if}
 
@@ -347,6 +361,25 @@
 </div>
 
 <style>
+  /* Keep all your existing styles */
+  /* Add this new style for error banner */
+  .error-banner {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+    animation: slideIn 0.3s ease;
+  }
+
+  .error-icon {
+    font-size: 1.5rem;
+  }
+
   .container {
     max-width: 900px;
     margin: 0 auto;

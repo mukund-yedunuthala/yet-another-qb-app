@@ -2,13 +2,13 @@
 </script>
 
 <svelte:head>
-  <title>QuizBank - Your Personal Question Bank</title>
+  <title>Yet Another QB App</title>
 </svelte:head>
 
 <div class="container">
   <div class="hero">
-    <h1 class="hero-title">Welcome to QuizBank</h1>
-    <p class="hero-subtitle">Your personal question bank for efficient learning</p>
+    <h1 class="hero-title">Welcome to Yet Another QB App</h1>
+    <p class="hero-subtitle">A questions vault for competitive exam preparations.</p>
     
     <div class="hero-actions">
       <a href="/questions" class="btn-primary">Browse Questions</a>
@@ -26,7 +26,7 @@
     <div class="feature-card">
       <div class="feature-icon">✏️</div>
       <h3 class="feature-title">Quick Addition</h3>
-      <p class="feature-description">Add new questions with multiple choice answers and explanations</p>
+      <p class="feature-description">Add new questions with multiple choice answers and optional explanations</p>
     </div>
 
     <div class="feature-card">
@@ -36,7 +36,7 @@
     </div>
   </div>
 
-  <div class="stats-overview">
+  <!-- <div class="stats-overview">
     <div class="stat-item">
       <div class="stat-value">0</div>
       <div class="stat-label">Total Questions</div>
@@ -49,7 +49,7 @@
       <div class="stat-value">0</div>
       <div class="stat-label">Study Sessions</div>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <style>

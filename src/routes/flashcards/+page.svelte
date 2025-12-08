@@ -6,57 +6,8 @@
 
   let allQuestions = [];
   let loading = true;
-  
-  // Fetch questions
-  async function fetchQuestions() {
-    loading = true;
-    try {
-      const response = await tablesDB.listRows(
-        PUBLIC_APPWRITE_DATABASE_ID, //databaseId
-        PUBLIC_APPWRITE_TABLE_ID,
-      );
-      
-      allQuestions = response.rows.map(row => ({
-        id: row.$id,
-        subject: row.subject,
-        question: row.question,
-        options: [row.optionA, row.optionB, row.optionC, row.optionD],
-        correctAnswer: row.correctAnswer,
-        explanation: row.explanation,
-        learnt: row.learnt
-      }));
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    } finally {
-      loading = false;
-    }
-  }
-  
-  // Mark question as learnt (update in database)
-  async function markAsLearnt() {
-    try {
-      await tablesDB.updateRow(
-        import.meta.env.PUBLIC_APPWRITE_DATABASE_ID,
-        import.meta.env.PUBLIC_APPWRITE_TABLE_ID,
-        currentQuestion.id,
-        { learnt: true }
-      );
-      
-      // Update local state
-      const questionIndex = allQuestions.findIndex(q => q.id === currentQuestion.id);
-      if (questionIndex !== -1) {
-        allQuestions[questionIndex].learnt = true;
-        allQuestions = allQuestions;
-        sessionStats.learnt++;
-      }
-    } catch (error) {
-      console.error('Error marking as learnt:', error);
-    }
-  }
-  
-  onMount(() => {
-    fetchQuestions();
-  });
+  let error = null;
+
 
   // Session state
   let sessionActive = false;
@@ -74,13 +25,72 @@
   // Settings
   let skipLearnt = true;
   let showExplanations = true;
+  let selectedSubjects = []; // Array of selected subjects
+  let availableSubjects = [];
 
-  // Get questions for the session
-  $: availableQuestions = skipLearnt 
-    ? allQuestions.filter(q => !q.learnt)
-    : allQuestions;
+  // Fetch questions from Appwrite
+  async function fetchQuestions() {
+    loading = true;
+    error = null;
+    
+    try {
+      const response = await tablesDB.listRows(
+        PUBLIC_APPWRITE_DATABASE_ID,
+        PUBLIC_APPWRITE_TABLE_ID
+      );
+      
+      allQuestions = response.rows.map(row => ({
+        id: row.$id,
+        subject: row.subject,
+        question: row.question,
+        options: [row.optionA, row.optionB, row.optionC, row.optionD],
+        correctAnswer: row.correctAnswer,
+        explanation: row.explanation,
+        learnt: row.learnt
+      }));
 
-  $: hasQuestions = availableQuestions.length > 0;
+      // Extract unique subjects
+      availableSubjects = [...new Set(allQuestions.map(q => q.subject))].sort();
+      
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+      error = 'Failed to load questions. Please try again.';
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(() => {
+    fetchQuestions();
+  });
+
+  // Get questions filtered by settings
+  $: filteredQuestions = allQuestions.filter(q => {
+    const matchesLearnt = !skipLearnt || !q.learnt;
+    const matchesSubject = selectedSubjects.length === 0 || selectedSubjects.includes(q.subject);
+    return matchesLearnt && matchesSubject;
+  });
+
+  $: hasQuestions = filteredQuestions.length > 0;
+
+  // Toggle subject selection
+  function toggleSubject(subject) {
+    if (selectedSubjects.includes(subject)) {
+      selectedSubjects = selectedSubjects.filter(s => s !== subject);
+    } else {
+      selectedSubjects = [...selectedSubjects, subject];
+    }
+  }
+
+  // Select all subjects
+  function selectAllSubjects() {
+    selectedSubjects = [...availableSubjects];
+  }
+
+  // Clear all subjects
+  function clearAllSubjects() {
+    selectedSubjects = [];
+  }
 
   // Start study session
   function startSession() {
@@ -102,17 +112,13 @@
     answerSubmitted = false;
     isCorrect = false;
 
-    const unaskedQuestions = skipLearnt 
-      ? availableQuestions.filter(q => !q.learnt)
-      : availableQuestions;
-
-    if (unaskedQuestions.length === 0) {
+    if (filteredQuestions.length === 0) {
       endSession();
       return;
     }
 
-    const randomIndex = Math.floor(Math.random() * unaskedQuestions.length);
-    currentQuestion = unaskedQuestions[randomIndex];
+    const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+    currentQuestion = filteredQuestions[randomIndex];
   }
 
   // Handle answer selection
@@ -136,6 +142,27 @@
     }
   }
 
+  // Mark question as learnt
+  async function markAsLearnt() {
+    try {
+      await tablesDB.updateRow(
+        PUBLIC_APPWRITE_DATABASE_ID,
+        PUBLIC_APPWRITE_TABLE_ID,
+        currentQuestion.id,
+        { learnt: true }
+      );
+      
+      const questionIndex = allQuestions.findIndex(q => q.id === currentQuestion.id);
+      if (questionIndex !== -1) {
+        allQuestions[questionIndex].learnt = true;
+        allQuestions = allQuestions;
+        sessionStats.learnt++;
+      }
+    } catch (error) {
+      console.error('Error marking as learnt:', error);
+    }
+  }
+
   // Continue to next question
   function nextQuestion() {
     loadNextQuestion();
@@ -151,14 +178,33 @@
   $: accuracy = sessionStats.total > 0 
     ? Math.round((sessionStats.correct / sessionStats.total) * 100) 
     : 0;
+
+  // Count questions by subject
+  function getSubjectCount(subject) {
+    return allQuestions.filter(q => {
+      const matchesSubject = q.subject === subject;
+      const matchesLearnt = !skipLearnt || !q.learnt;
+      return matchesSubject && matchesLearnt;
+    }).length;
+  }
 </script>
 
 <svelte:head>
-  <title>Flashcards - QuizBank</title>
+  <title>Flashcards - Yet Another QB App</title>
 </svelte:head>
 
 <div class="container">
-  {#if !sessionActive}
+  {#if loading}
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading questions...</p>
+    </div>
+  {:else if error}
+    <div class="error-state">
+      <p>{error}</p>
+      <button class="btn-primary" on:click={fetchQuestions}>Retry</button>
+    </div>
+  {:else if !sessionActive}
     <!-- Start Screen -->
     <div class="start-screen" in:fade={{ duration: 300 }}>
       <div class="start-content">
@@ -184,11 +230,51 @@
           <div class="stat-item">
             <div class="stat-icon">🎲</div>
             <div class="stat-text">
-              <div class="stat-value">{availableQuestions.length}</div>
+              <div class="stat-value">{filteredQuestions.length}</div>
               <div class="stat-label">Available to Study</div>
             </div>
           </div>
         </div>
+
+        <!-- Subject Selection -->
+        {#if availableSubjects.length > 0}
+          <div class="subject-selection">
+            <div class="subject-header">
+              <h3 class="section-title">Select Subjects</h3>
+              <div class="subject-actions">
+                <button class="btn-text" on:click={selectAllSubjects}>Select All</button>
+                <span class="separator">•</span>
+                <button class="btn-text" on:click={clearAllSubjects}>Clear All</button>
+              </div>
+            </div>
+            
+            <div class="subject-grid">
+              {#each availableSubjects as subject}
+                {@const count = getSubjectCount(subject)}
+                {@const isSelected = selectedSubjects.includes(subject)}
+                <button
+                  class="subject-chip"
+                  class:selected={isSelected}
+                  class:disabled={count === 0}
+                  on:click={() => toggleSubject(subject)}
+                  disabled={count === 0}
+                >
+                  <span class="subject-name">{subject}</span>
+                  <span class="subject-count">{count}</span>
+                  {#if isSelected}
+                    <span class="check-icon">✓</span>
+                  {/if}
+                </button>
+              {/each}
+            </div>
+            
+            {#if selectedSubjects.length === 0}
+              <p class="subject-hint">💡 Select at least one subject to start studying, or leave all unselected to study all subjects</p>
+            {:else}
+              <p class="subject-hint">Selected: {selectedSubjects.join(', ')}</p>
+            {/if}
+          </div>
+        {/if}
 
         <div class="settings">
           <h3 class="settings-title">Study Settings</h3>
@@ -208,17 +294,15 @@
           </button>
         {:else}
           <div class="no-questions">
-            <p>No questions available for study.</p>
-            {#if skipLearnt}
-              <p class="hint">Try disabling "Skip learnt questions" or add more questions.</p>
-            {/if}
+            <p>No questions available with current filters.</p>
+            <p class="hint">Try adjusting your subject selection or settings.</p>
             <a href="/add" class="btn-secondary">Add Questions</a>
           </div>
         {/if}
       </div>
     </div>
   {:else if currentQuestion}
-    <!-- Active Study Session -->
+    <!-- Active Study Session (keep existing code) -->
     <div class="study-screen">
       <!-- Session Header -->
       <div class="session-header">
@@ -242,7 +326,10 @@
         </div>
       </div>
 
-      <!-- Question Card -->
+      <!-- Keep all your existing flashcard, feedback, and session footer code -->
+      <!-- ... (Question Card, Feedback Section, etc.) ... -->
+      
+      <!-- Flashcard -->
       <div class="flashcard" in:fly={{ y: 50, duration: 400, easing: cubicOut }}>
         <div class="flashcard-header">
           <h2 class="flashcard-question">{currentQuestion.question}</h2>
@@ -338,6 +425,7 @@
     </div>
   {/if}
 </div>
+
 
 <style>
   .container {
@@ -893,6 +981,153 @@
 
   .btn-end-session:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+
+    .loading-state, .error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Subject Selection Styles */
+  .subject-selection {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .subject-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    transition: opacity 0.3s;
+  }
+
+  .btn-text:hover {
+    opacity: 0.7;
+  }
+
+  .separator {
+    color: #ccc;
+    user-select: none;
+  }
+
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .subject-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .subject-chip:hover:not(:disabled) {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  }
+
+  .subject-chip.selected {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  .subject-chip.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .subject-name {
+    flex: 1;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .subject-chip.selected .subject-name {
+    color: #667eea;
+  }
+
+  .subject-count {
+    background: #e0e0e0;
+    color: #666;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .subject-chip.selected .subject-count {
+    background: #667eea;
+    color: white;
+  }
+
+  .check-icon {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .subject-hint {
+    color: #666;
+    font-size: 0.85rem;
+    text-align: center;
+    margin: 0;
+    padding: 0.5rem;
   }
 
   /* Responsive */

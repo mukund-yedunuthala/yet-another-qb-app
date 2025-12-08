@@ -62,7 +62,7 @@
 </script>
 
 <svelte:head>
-  <title>Questions - QuizBank</title>
+  <title>Questions - Yet Another QB App</title>
 </svelte:head>
 
 <div class="container">

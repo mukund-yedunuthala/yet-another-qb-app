@@ -10,7 +10,7 @@
 <div class="app-container">
   <header class="header">
     <div class="container">
-      <a href="/" class="logo">QuizBank</a>
+      <a href="/" class="logo">Yet Another QB App</a>
       <nav class="nav">
         <a href="/" class="nav-link" class:active={isActive('/')}>
           Home
@@ -35,7 +35,7 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
-        <p class="copyright">© {currentYear} QuizBank. All rights reserved.</p>
+        <p class="copyright">© {currentYear} Yet Another QB App. All rights reserved.</p>
         <div class="footer-links">
           <a href="/imprint" class="footer-link">Imprint</a>
           <span class="separator">•</span>

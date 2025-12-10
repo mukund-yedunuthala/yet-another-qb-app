@@ -1,0 +1,13 @@
+services:
+  yaqba:
+    image: yet-another-qb-app:1.0.1
+    env_file:
+      - .env
+    ports:
+      - "24173:4173"
+    environment:
+      - PUBLIC_APPWRITE_ENDPOINT=${PUBLIC_APPWRITE_ENDPOINT}
+      - PUBLIC_APPWRITE_PROJECT_ID=${PUBLIC_APPWRITE_PROJECT_ID}
+      - PUBLIC_APPWRITE_DATABASE_ID=${PUBLIC_APPWRITE_DATABASE_ID}
+      - PUBLIC_APPWRITE_TABLE_ID=${PUBLIC_APPWRITE_TABLE_ID}
+    restart: unless-stopped

@@ -1,4 +1,4 @@
-FROM node:24.11.1-alpine3.23 AS builder
+FROM node:25.4.0-alpine3.23 AS builder
 
 WORKDIR /app
 COPY package*.json ./
@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 RUN npm prune --production
 
-FROM node:24.11.1-alpine3.23
+FROM node:25.4.0-alpine3.23
 WORKDIR /app
 
 USER node

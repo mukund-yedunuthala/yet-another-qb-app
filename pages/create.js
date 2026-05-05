@@ -1,6 +1,6 @@
 import { createQuestion, updateQuestion, getSubjects, tablesDB, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '../js/appwrite.js';
 import { router, updatePageLinks } from '../js/router.js';
-import { escHtml } from '../js/utils.js';
+import { escHtml, showError } from '../js/utils.js';
 
 export async function renderCreate(questionId = null) {
     const content = document.getElementById('app-content');
@@ -103,7 +103,12 @@ export async function renderCreate(questionId = null) {
     // Handle form submission
     document.getElementById('question-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
         const formData = {
             question: document.getElementById('question').value.trim(),
             optionA: document.getElementById('optionA').value.trim(),
@@ -115,18 +120,18 @@ export async function renderCreate(questionId = null) {
             explanation: document.getElementById('explanation').value.trim(),
             learnt: isEdit ? document.getElementById('learnt').checked : false
         };
-        
+
         try {
             if (isEdit) {
                 await updateQuestion(questionId, formData);
-                alert('Question updated successfully!');
             } else {
                 await createQuestion(formData);
-                alert('Question created successfully!');
             }
             router.navigate('/questions');
         } catch (error) {
-            alert(`Error ${isEdit ? 'updating' : 'creating'} question: ${error.message}`);
+            btn.disabled = false;
+            btn.textContent = originalText;
+            showError(`Error ${isEdit ? 'updating' : 'creating'} question: ${error.message}`);
         }
     });
 }

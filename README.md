@@ -1,163 +1,127 @@
-# Yet Another QB App
+# Yet Another Question Bank App
 
-A modern, elegant personal question bank application for efficient learning and knowledge management. Built with SvelteKit and Appwrite.
+A personal MCQ question bank — create, browse, and practice with flashcards. No build step, no framework, no dependencies to install.
 
-![Yet Another QB App Banner](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)
 ![Appwrite](https://img.shields.io/badge/Appwrite-F02E65?style=for-the-badge&logo=appwrite&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
 
+## Stack
+
+| Layer | Technology |
+|---|---|
+| UI | [Oat](https://github.com/knadh/oat) (CDN) |
+| Routing | [Navigo](https://github.com/krasimir/navigo) (CDN) |
+| Backend | [Appwrite](https://appwrite.io/) cloud |
+| Serving | nginx (Docker) or any static server |
+
 ## Features
 
-- **Question Management**: Create, organize, and browse multiple-choice questions by subject
-- **Flashcard Mode**: Interactive study sessions with randomized questions
-- **Smart Learning**: Mark questions as learned and track progress
-- **Search & Filter**: Quickly find questions by subject or keywords
-- **Modern UI**: Clean, responsive design with smooth animations
-- **Personal Use**: Secure, cloud-based storage with Appwrite
+- Create and edit multiple-choice questions (4 options, optional explanation)
+- Organize questions by subject
+- Flashcard study mode with shuffle and subject filter
+- Mark questions as learnt to track progress
+- Statistics view with per-subject breakdown
+- Dark/light theme toggle
 
-## Quick Start
+## Appwrite Setup
 
-### Prerequisites
+Create a project in [Appwrite Console](https://cloud.appwrite.io), then create a database and a collection named `questions` with these fields:
 
-- Node.js 18+ and npm
-- An Appwrite account (free at [cloud.appwrite.io](https://cloud.appwrite.io))
+| Field | Type | Size | Required | Default |
+|---|---|---|---|---|
+| `question` | String | 1000 | Yes | — |
+| `optionA` | String | 500 | Yes | — |
+| `optionB` | String | 500 | Yes | — |
+| `optionC` | String | 500 | Yes | — |
+| `optionD` | String | 500 | Yes | — |
+| `correctAnswer` | Integer | — | Yes | — |
+| `subject` | String | 100 | Yes | — |
+| `explanation` | String | 2000 | No | — |
+| `learnt` | Boolean | — | Yes | false |
 
-### Installation
+`correctAnswer` is 0-based (0 = A, 1 = B, 2 = C, 3 = D).
 
-1. **Clone the repository**
+Set collection permissions according to your access needs. Subjects are derived from question data — there is no separate subjects collection.
 
-    ```bash
-    git clone https://github.com/mukund-yedunuthala/yet-another-qb-app.git
-    cd yet-another-qb-app
-    ```
+## Running locally
 
-2. **Install dependencies**
+This is a static app — no build step, no `npm install`.
 
-    ```bash
-    npm install
-    ```
+1. Copy `.env.example` to `.env` and fill in your Appwrite credentials:
 
+   ```
+   PUBLIC_APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1
+   PUBLIC_APPWRITE_PROJECT_ID=your_project_id
+   PUBLIC_APPWRITE_DATABASE_ID=your_database_id
+   PUBLIC_APPWRITE_TABLE_ID=your_collection_id
+   ```
 
-3. **Set up Appwrite**
+2. Replace the `__PLACEHOLDER__` tokens in `js/config.js` with your actual values (the `.env` is **not** auto-injected outside Docker):
 
-    Create a new project in your Appwrite Console, then:
+   ```sh
+   sed -i 's|__APPWRITE_ENDPOINT__|https://fra.cloud.appwrite.io/v1|g' js/config.js
+   # repeat for the other three tokens
+   ```
 
-    - Create a database (ID: `quizbank`)
-    - Create a table (ID: `questions`)
-    - Add the following columns:
+3. Serve the directory:
 
-    | Column Name    | Type    | Size | Required | Default | Array |
-    |----------------|---------|------|----------|---------|-------|
-    | question       | String  | 1000 | Yes      | -       | No    |
-    | optionA        | String  | 500  | Yes      | -       | No    |
-    | optionB        | String  | 500  | Yes      | -       | No    |
-    | optionC        | String  | 500  | Yes      | -       | No    |
-    | optionD        | String  | 500  | Yes      | -       | No    |
-    | correctAnswer  | Integer | -    | Yes      | -       | No    |
-    | subject        | String  | 100  | Yes      | -       | No    |
-    | explanation    | String  | 2000 | No       | -       | No    |
-    | learnt         | Boolean | -    | Yes      | false   | No    |
+   ```sh
+   npx serve .
+   # or
+   python -m http.server 5173
+   ```
 
-    - Set table permissions to **Any** for Create, Read, Update, Delete
+4. Open [http://localhost:5173](http://localhost:5173).
 
-4. **Configure environment variables**
+## Docker
 
-    Create a `.env` file in the project root:
-    
-        PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-        PUBLIC_APPWRITE_PROJECT_ID=your_project_id
-        PUBLIC_APPWRITE_DATABASE_ID=your_db_id
-        PUBLIC_APPWRITE_TABLE_ID=your_table_id
+Build the image and export it as a tarball:
 
-5. **Run the development server**
+```sh
+bash docker-build-script.sh
+```
 
-        npm run dev
+Run with Docker Compose (uses `.env` values; env tokens in `js/config.js` are substituted at container startup):
 
+```sh
+docker compose up -d
+```
 
-6. **Open your browser**
+The app is available at [http://localhost:8880](http://localhost:8880).
 
-    Navigate to [http://localhost:5173](http://localhost:5173)
+The nginx entrypoint script (`docker/40-inject-env.sh`) replaces the `__APPWRITE_*__` tokens in `js/*.js` using env vars passed **without** the `PUBLIC_` prefix (i.e. `APPWRITE_ENDPOINT`, not `PUBLIC_APPWRITE_ENDPOINT`).
 
-## Usage
+Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) are served via `nginx/headers.conf`.
 
-### Adding Questions
+## Project structure
 
-1. Click "Add Question" in the navigation menu
-2. Fill in the question text and four answer options
-3. Select the correct answer
-4. Add a subject/category
-5. Optionally add an explanation
-6. Click "Add Question"
+```
+index.html              Single HTML shell — loads CDN deps, defines header/footer
+js/
+  app.js                Entry point — theme toggle, calls initRouter()
+  router.js             Navigo SPA router; maps URL paths to render functions;
+                        also contains inline renderers for /about, /imprint, /privacy
+  appwrite.js           All Appwrite CRUD (getQuestions, createQuestion, updateQuestion,
+                        deleteQuestion, markAsLearnt, getSubjects, getStats)
+  config.js             Appwrite config constants; __PLACEHOLDER__ tokens replaced at
+                        Docker startup by docker/40-inject-env.sh
+  utils.js              Shared helpers (escHtml for XSS-safe innerHTML interpolation)
+pages/
+  home.js               Dashboard with stats summary
+  questions.js          Question list with subject filter
+  create.js             Create/edit form (doubles as edit when called with questionId)
+  subjects.js           Subject browser with per-subject progress
+  flashcards.js         Interactive study mode with shuffle and learnt tracking
+  stats.js              Detailed statistics with per-subject breakdown
+css/styles.css          Custom overrides on top of Oat UI
+docker/
+  40-inject-env.sh      Entrypoint script that injects env vars into js/config.js at runtime
+nginx/
+  headers.conf          nginx server block adding security headers
+```
 
-### Browsing Questions
-
-- View all questions on the Questions page
-- Use the search bar to find specific questions
-- Filter by subject using the dropdown
-- Click to expand and view explanations
-
-### Flashcard Study Mode
-
-1. Click "Flashcards" in the navigation menu
-2. Configure study settings:
-- Toggle "Skip questions marked as learnt"
-- Toggle "Show explanations after answering"
-3. Click "Start Studying"
-4. Select an answer and click "Check Answer"
-5. Mark questions as learnt when confident
-6. Track your session statistics in real-time
-
-
-## Technology Stack
-
-- **Frontend**: [SvelteKit](https://kit.svelte.dev/) - Modern, reactive framework
-- **Backend**: [Appwrite](https://appwrite.io/) - Open-source BaaS
-
-## Design Language
-
-QuizBank features a modern, clean design with:
-
-- **Purple gradient theme** (#667eea to #764ba2)
-- **Card-based layouts** with subtle shadows and hover effects
-- **Smooth transitions** for an engaging user experience
-- **Responsive design** that works on desktop and mobile
-- **Semantic HTML** for accessibility
-
-## Environment Variables
-
-| Variable                        | Description                           |
-|---------------------------------|---------------------------------------|
-| `PUBLIC_APPWRITE_ENDPOINT`      | Appwrite API endpoint URL             |
-| `PUBLIC_APPWRITE_PROJECT_ID`    | Your Appwrite project ID              |
-| `PUBLIC_APPWRITE_DATABASE_ID`   | Database ID    |
-| `PUBLIC_APPWRITE_TABLE_ID`      | Table ID       |
-
-## Building for Production
-
-Build the application
-        
-    npm run build
-
-Preview the production build locally
-
-    npm run preview
-
-
-The built application can be deployed to any Node.js hosting platform or adapted for static hosting.
-
+Each `pages/*.js` file exports a single `render*()` function that replaces `#app-content` innerHTML and calls `updatePageLinks()` for Navigo to pick up new `data-navigo` links.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [SvelteKit](https://kit.svelte.dev/)
-- [Appwrite](https://appwrite.io/)
-
-## Contact
-
-Project Link: [https://github.com/mukund-yedunuthala/yet-another-qb-app.git](https://github.com/mukund-yedunuthala/yet-another-qb-app.git)
-
----
-
+MIT — see [LICENSE](LICENSE).

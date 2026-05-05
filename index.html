@@ -1,56 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yet Another Question Bank App</title>
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <!-- Oat CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@knadh/oat@0.6.1/oat.min.css" integrity="sha384-Og/V0L/W2NTx/MFghQT69RgjpXeYmxarXb64BwF/k92HSjxGWFo6GT1/weuT7qWA" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@knadh/oat@0.6.1/oat.min.js" integrity="sha384-8HmcVM0x1xxqp24p+SnO9TxUAaj2avZd6KxKrGwEq0Dqb9tJiabfApY1DFvQVeu8" crossorigin="anonymous" defer></script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Yet Another Question Bank App</title>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <!-- Oat CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@knadh/oat@0.6.1/oat.min.css"
+            integrity="sha384-Og/V0L/W2NTx/MFghQT69RgjpXeYmxarXb64BwF/k92HSjxGWFo6GT1/weuT7qWA"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/npm/@knadh/oat@0.6.1/oat.min.js"
+            integrity="sha384-8HmcVM0x1xxqp24p+SnO9TxUAaj2avZd6KxKrGwEq0Dqb9tJiabfApY1DFvQVeu8"
+            crossorigin="anonymous"
+            defer
+        ></script>
 
-    <!-- Appwrite SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@25.0.0/dist/iife/sdk.min.js" integrity="sha384-9bu8UsJY3kpit4gSfrzUT3orl0JapxlBfnXQ710uEYXvr3crfutaCBru/OOc0hh/" crossorigin="anonymous"></script>
+        <!-- Appwrite SDK -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/appwrite@25.0.0/dist/iife/sdk.min.js"
+            integrity="sha384-9bu8UsJY3kpit4gSfrzUT3orl0JapxlBfnXQ710uEYXvr3crfutaCBru/OOc0hh/"
+            crossorigin="anonymous"
+        ></script>
 
-    <!-- Navigo Router -->
-    <script src="https://unpkg.com/navigo@8.11.1/build/navigo.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
-    
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <header>
-        <div class="brand">
-            <a href="/" data-navigo><strong>Yet Another Question Bank App</strong></a>
-        </div>
-        <div class="right-section">
+        <!-- Navigo Router -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/navigo@8.11.1/lib/navigo.min.js"
+            integrity="sha384-iMcofI1vagkcmjRIvgjDF547fnAc4QY3QgV43SLM6KEnQqx9SRnP/P8w5fVgDVD+"
+            crossorigin="anonymous"
+        ></script>
+
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body>
+        <header>
+            <div class="brand">
+                <a href="/" data-navigo
+                    ><strong>Yet Another Question Bank App</strong></a
+                >
+            </div>
+            <div class="right-section">
+                <nav>
+                    <a href="/create" data-navigo class="nav-link"
+                        >Add question</a
+                    >
+                    <a href="/flashcards" data-navigo class="nav-link"
+                        >Flashcards</a
+                    >
+                    <a href="/questions" data-navigo class="nav-link"
+                        >Questions</a
+                    >
+                </nav>
+                <label>
+                    Dark
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        id="theme-switch"
+                        checked
+                    />
+                </label>
+            </div>
+        </header>
+
+        <main id="app-content">
+            <!-- Content will be dynamically loaded here -->
+        </main>
+
+        <footer>
+            <p>
+                &copy; 2026 Yet Another Question Bank App. Built with Oat and
+                Appwrite. Version: 2.0.3
+            </p>
             <nav>
-                <a href="/create" data-navigo class="nav-link">Add question</a>
-                <a href="/flashcards" data-navigo class="nav-link">Flashcards</a>
-                <a href="/questions" data-navigo class="nav-link">Questions</a>
+                <a href="/imprint" data-navigo class="nav-link">Imprint</a>
+                <a href="/privacy" data-navigo class="nav-link"
+                    >Privacy Policy</a
+                >
+                <a href="/about" data-navigo class="nav-link">About</a>
             </nav>
-            <label>
-                Dark
-                <input type="checkbox" role="switch" id="theme-switch" checked>
-            </label>
-        </div>
-    </header>
+        </footer>
 
-    <main id="app-content">
-        <!-- Content will be dynamically loaded here -->
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Yet Another Question Bank App. Built with Oat and Appwrite. Version: 2.0.3</p>
-        <nav>
-            <a href="/imprint" data-navigo class="nav-link">Imprint</a>
-            <a href="/privacy" data-navigo class="nav-link">Privacy Policy</a>
-            <a href="/about" data-navigo class="nav-link">About</a>
-        </nav>
-    </footer>
-
-    <!-- Load scripts as modules -->
-    <script type="module" src="js/router.js"></script>
-    <script type="module" src="js/app.js"></script>
-</body>
+        <!-- Load scripts as modules -->
+        <script type="module" src="js/router.js"></script>
+        <script type="module" src="js/app.js"></script>
+    </body>
 </html>

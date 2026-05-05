@@ -1,4 +1,4 @@
-FROM alpine:3.23.3 as builder
+FROM alpine:3.23.3 AS builder
 WORKDIR /app
 COPY . .
 

@@ -1,5 +1,6 @@
 import { getQuestions, getQuestionsBySubject, markAsLearnt, getSubjects } from '../js/appwrite.js';
-import { updatePageLinks, router } from '../js/router.js'; 
+import { updatePageLinks, router } from '../js/router.js';
+import { escHtml } from '../js/utils.js';
 
 const optionLabels = ['A', 'B', 'C', 'D'];
 let currentQuestions = [];
@@ -34,15 +35,15 @@ export async function renderFlashcards(filterSubject = null) {
         showingAnswer = false;
         
         let html = `
-            <h1>Flashcard Mode ${filterSubject ? `- ${filterSubject}` : ''}</h1>
-            
+            <h1>Flashcard Mode ${filterSubject ? `- ${escHtml(filterSubject)}` : ''}</h1>
+
             <div class="filter-bar">
                 <label>
                     <span>Filter by subject:</span>
                     <select id="subject-filter" onchange="filterFlashcardsBySubject(this.value)">
                         <option value="">All Subjects</option>
-                        ${allSubjects.map(subject => 
-                            `<option value="${subject}" ${subject === filterSubject ? 'selected' : ''}>${subject}</option>`
+                        ${allSubjects.map(subject =>
+                            `<option value="${escHtml(subject)}" ${subject === filterSubject ? 'selected' : ''}>${escHtml(subject)}</option>`
                         ).join('')}
                     </select>
                 </label>
@@ -81,13 +82,13 @@ function renderCurrentFlashcard() {
                     <div class="progress-fill" style="width: ${progress}%;"></div>
                 </div>
             </div>
-            
+
             <div class="flashcard active" onclick="flipFlashcard()">
                 <div class="flashcard-content">
                     <div class="flashcard-label">Question</div>
-                    <h2>${question.question}</h2>
+                    <h2>${escHtml(question.question)}</h2>
                     <div class="flashcard-meta">
-                        <span><strong>Subject:</strong> ${question.subject}</span>
+                        <span><strong>Subject:</strong> ${escHtml(question.subject)}</span>
                     </div>
                     <div class="flashcard-hint">
                         <p><em>Click to reveal answer</em></p>
@@ -116,23 +117,22 @@ function renderCurrentFlashcard() {
             <div class="flashcard active answer-side" onclick="flipFlashcard()">
                 <div class="flashcard-content">
                     <div class="flashcard-label">Answer</div>
-                    <h3>${question.question}</h3>
+                    <h3>${escHtml(question.question)}</h3>
                     <div class="flashcard-options">
                         ${options.map((option, index) => {
-                            // FIX: Compare index (0-3) directly with question.correctAnswer (0-3)
                             const isCorrect = index === parseInt(question.correctAnswer);
                             return `
                                 <div class="flashcard-option ${isCorrect ? 'correct' : ''}">
-                                    <strong>${optionLabels[index]}.</strong> ${option}
+                                    <strong>${optionLabels[index]}.</strong> ${escHtml(option)}
                                     ${isCorrect ? ' ✓' : ''}
                                 </div>
                             `;
                         }).join('')}
                     </div>
-                    
+
                     ${question.explanation ? `
                         <div class="flashcard-explanation">
-                            <strong>Explanation:</strong> ${question.explanation}
+                            <strong>Explanation:</strong> ${escHtml(question.explanation)}
                         </div>
                     ` : ''}
                     

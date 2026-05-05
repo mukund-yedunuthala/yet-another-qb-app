@@ -1,5 +1,6 @@
 import { getSubjects, getQuestionsBySubject } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
+import { escHtml } from '../js/utils.js';
 export async function renderSubjects() {
     const content = document.getElementById('app-content');
     
@@ -44,7 +45,7 @@ export async function renderSubjects() {
             html += `
                 <a href="/questions/${encodeURIComponent(subject.name)}" data-navigo style="text-decoration: none; color: inherit;">
                     <div class="subject-card">
-                        <h3>${subject.name}</h3>
+                        <h3>${escHtml(subject.name)}</h3>
                         <div class="count">${subject.total}</div>
                         <p>Total Questions</p>
                         <hr style="margin: 1rem 0;">

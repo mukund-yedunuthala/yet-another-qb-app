@@ -1,5 +1,6 @@
 import { createQuestion, updateQuestion, getSubjects, tablesDB, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '../js/appwrite.js';
 import { router, updatePageLinks } from '../js/router.js';
+import { escHtml } from '../js/utils.js';
 
 export async function renderCreate(questionId = null) {
     const content = document.getElementById('app-content');
@@ -25,36 +26,36 @@ export async function renderCreate(questionId = null) {
     
     content.innerHTML = `
         <h1>${isEdit ? 'Edit' : 'Create New'} Question</h1>
-        
+
         <form id="question-form">
             <div class="form-group">
                 <label for="question">Question *</label>
-                <textarea id="question" name="question" rows="3" required maxlength="1000">${existingQuestion?.question || ''}</textarea>
+                <textarea id="question" name="question" rows="3" required maxlength="1000">${escHtml(existingQuestion?.question)}</textarea>
                 <small>Max 1000 characters</small>
             </div>
-            
+
             <div class="options-group">
                 <div class="form-group">
                     <label for="optionA">Option A *</label>
-                    <input type="text" id="optionA" name="optionA" required maxlength="500" value="${existingQuestion?.optionA || ''}">
+                    <input type="text" id="optionA" name="optionA" required maxlength="500" value="${escHtml(existingQuestion?.optionA)}">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="optionB">Option B *</label>
-                    <input type="text" id="optionB" name="optionB" required maxlength="500" value="${existingQuestion?.optionB || ''}">
+                    <input type="text" id="optionB" name="optionB" required maxlength="500" value="${escHtml(existingQuestion?.optionB)}">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="optionC">Option C *</label>
-                    <input type="text" id="optionC" name="optionC" required maxlength="500" value="${existingQuestion?.optionC || ''}">
+                    <input type="text" id="optionC" name="optionC" required maxlength="500" value="${escHtml(existingQuestion?.optionC)}">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="optionD">Option D *</label>
-                    <input type="text" id="optionD" name="optionD" required maxlength="500" value="${existingQuestion?.optionD || ''}">
+                    <input type="text" id="optionD" name="optionD" required maxlength="500" value="${escHtml(existingQuestion?.optionD)}">
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="correctAnswer">Correct Answer *</label>
                 <select id="correctAnswer" name="correctAnswer" required>
@@ -65,19 +66,19 @@ export async function renderCreate(questionId = null) {
                     <option value="3" ${existingQuestion?.correctAnswer == 3 ? 'selected' : ''}>D</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="subject">Subject *</label>
-                <input type="text" id="subject" name="subject" list="subjects-list" required maxlength="100" value="${existingQuestion?.subject || ''}">
+                <input type="text" id="subject" name="subject" list="subjects-list" required maxlength="100" value="${escHtml(existingQuestion?.subject)}">
                 <datalist id="subjects-list">
-                    ${allSubjects.map(subject => `<option value="${subject}">`).join('')}
+                    ${allSubjects.map(subject => `<option value="${escHtml(subject)}">`).join('')}
                 </datalist>
                 <small>Type a new subject or select from existing ones</small>
             </div>
-            
+
             <div class="form-group">
                 <label for="explanation">Explanation (Optional)</label>
-                <textarea id="explanation" name="explanation" rows="3" maxlength="2000">${existingQuestion?.explanation || ''}</textarea>
+                <textarea id="explanation" name="explanation" rows="3" maxlength="2000">${escHtml(existingQuestion?.explanation)}</textarea>
                 <small>Max 2000 characters</small>
             </div>
             

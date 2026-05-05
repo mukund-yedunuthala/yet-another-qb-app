@@ -1,5 +1,6 @@
 import { getQuestions, getQuestionsBySubject, deleteQuestion, markAsLearnt, getSubjects } from '../js/appwrite.js';
-import { updatePageLinks, router } from '../js/router.js'; 
+import { updatePageLinks, router } from '../js/router.js';
+import { escHtml } from '../js/utils.js';
 
 const optionLabels = ['A', 'B', 'C', 'D'];
 
@@ -24,15 +25,15 @@ export async function renderQuestions(filterSubject = null) {
         }
         
         let html = `
-            <h1>Questions ${filterSubject ? `- ${filterSubject}` : ''}</h1>
-            
+            <h1>Questions ${filterSubject ? `- ${escHtml(filterSubject)}` : ''}</h1>
+
             <div class="filter-bar">
                 <label>
                     Filter by subject:
                     <select id="subject-filter" onchange="filterBySubject(this.value)">
                         <option value="">All Subjects</option>
-                        ${allSubjects.map(subject => 
-                            `<option value="${subject}" ${subject === filterSubject ? 'selected' : ''}>${subject}</option>`
+                        ${allSubjects.map(subject =>
+                            `<option value="${escHtml(subject)}" ${subject === filterSubject ? 'selected' : ''}>${escHtml(subject)}</option>`
                         ).join('')}
                     </select>
                 </label>
@@ -42,32 +43,33 @@ export async function renderQuestions(filterSubject = null) {
         
         questions.forEach(q => {
             const options = [q.optionA, q.optionB, q.optionC, q.optionD];
-                    html += `
-                        <div class="question-card ${q.learnt ? 'learnt' : ''}">
-                            <h3>${q.question}</h3>
-                            <ul class="options-list">
-                                ${options.map((option, index) => {
-                                    const isCorrect = index === parseInt(q.correctAnswer);
-                                    return `
-                                        <li class="${isCorrect ? 'correct' : ''}">
-                                            <strong>${optionLabels[index]}.</strong> ${option}
-                                            ${isCorrect ? ' ✓' : ''}
-                                        </li>
-                                    `;
-                                }).join('')}
-                            </ul>
+            const qid = escHtml(q.$id);
+            html += `
+                <div class="question-card ${q.learnt ? 'learnt' : ''}">
+                    <h3>${escHtml(q.question)}</h3>
+                    <ul class="options-list">
+                        ${options.map((option, index) => {
+                            const isCorrect = index === parseInt(q.correctAnswer);
+                            return `
+                                <li class="${isCorrect ? 'correct' : ''}">
+                                    <strong>${optionLabels[index]}.</strong> ${escHtml(option)}
+                                    ${isCorrect ? ' ✓' : ''}
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
                     ${q.explanation ? `
                         <div class="explanation">
-                            <strong>Explanation:</strong> ${q.explanation}
+                            <strong>Explanation:</strong> ${escHtml(q.explanation)}
                         </div>
                     ` : ''}
-                    
+
                     <div class="question-actions">
-                        <button onclick="toggleLearnt('${q.$id}', ${!q.learnt})" class="${q.learnt ? 'outline' : ''}">
+                        <button onclick="toggleLearnt('${qid}', ${!q.learnt})" class="${q.learnt ? 'outline' : ''}">
                             ${q.learnt ? 'Mark as Not Learnt' : 'Mark as Learnt'}
                         </button>
-                        <button class="outline" onclick="editQuestion('${q.$id}')">Edit</button>
-                        <button class="outline" onclick="deleteQuestionHandler('${q.$id}')">Delete</button>
+                        <button class="outline" onclick="editQuestion('${qid}')">Edit</button>
+                        <button class="outline" onclick="deleteQuestionHandler('${qid}')">Delete</button>
                     </div>
                 </div>
             `;

@@ -1,5 +1,6 @@
 import { getStats, getQuestions, getSubjects } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
+import { escHtml } from '../js/utils.js';
 export async function renderStats() {
     const content = document.getElementById('app-content');
     
@@ -64,7 +65,7 @@ export async function renderStats() {
         Object.entries(subjectStats).forEach(([subject, data]) => {
             html += `
                 <tr>
-                    <td><strong>${subject}</strong></td>
+                    <td><strong>${escHtml(subject)}</strong></td>
                     <td style="text-align: center;">${data.total}</td>
                     <td style="text-align: center;">${data.learnt}</td>
                     <td style="text-align: center;">${data.total - data.learnt}</td>

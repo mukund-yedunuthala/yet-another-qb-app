@@ -1,45 +1,49 @@
-import { getStats, getQuestions, getSubjects } from '../js/appwrite.js';
+import { getQuestions } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
 import { escHtml } from '../js/utils.js';
+
 export async function renderStats() {
     const content = document.getElementById('app-content');
-    
+
     content.innerHTML = '<div class="loading">Loading statistics...</div>';
-    
+
     try {
-        const stats = await getStats();
         const questions = await getQuestions();
-        const subjects = await getSubjects();
-        
-        // Calculate subject-wise stats
+
+        const total = questions.length;
+        const learnt = questions.filter(q => q.learnt).length;
+        const toLearn = total - learnt;
+        const overallProgress = total > 0 ? Math.round((learnt / total) * 100) : 0;
+
+        // Group by subject in one pass
         const subjectStats = {};
-        for (const subject of subjects) {
-            const subjectQuestions = questions.filter(q => q.subject === subject);
-            const learnt = subjectQuestions.filter(q => q.learnt).length;
-            subjectStats[subject] = {
-                total: subjectQuestions.length,
-                learnt: learnt,
-                progress: subjectQuestions.length > 0 ? Math.round((learnt / subjectQuestions.length) * 100) : 0
-            };
+        for (const q of questions) {
+            if (!subjectStats[q.subject]) {
+                subjectStats[q.subject] = { total: 0, learnt: 0 };
+            }
+            subjectStats[q.subject].total++;
+            if (q.learnt) subjectStats[q.subject].learnt++;
         }
-        
-        const overallProgress = stats.total > 0 ? Math.round((stats.learnt / stats.total) * 100) : 0;
-        
+        for (const key of Object.keys(subjectStats)) {
+            const s = subjectStats[key];
+            s.progress = s.total > 0 ? Math.round((s.learnt / s.total) * 100) : 0;
+        }
+
         let html = `
             <h1>Statistics</h1>
-            
+
             <h2>Overall Progress</h2>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="number">${stats.total}</div>
+                    <div class="number">${total}</div>
                     <div class="label">Total Questions</div>
                 </div>
                 <div class="stat-card">
-                    <div class="number">${stats.learnt}</div>
+                    <div class="number">${learnt}</div>
                     <div class="label">Learnt</div>
                 </div>
                 <div class="stat-card">
-                    <div class="number">${stats.toLearn}</div>
+                    <div class="number">${toLearn}</div>
                     <div class="label">To Learn</div>
                 </div>
                 <div class="stat-card">
@@ -47,7 +51,7 @@ export async function renderStats() {
                     <div class="label">Progress</div>
                 </div>
             </div>
-            
+
             <h2>Subject-wise Breakdown</h2>
             <table style="width: 100%; margin-top: 1rem;">
                 <thead>
@@ -61,7 +65,7 @@ export async function renderStats() {
                 </thead>
                 <tbody>
         `;
-        
+
         Object.entries(subjectStats).forEach(([subject, data]) => {
             html += `
                 <tr>
@@ -73,19 +77,19 @@ export async function renderStats() {
                 </tr>
             `;
         });
-        
+
         html += `
                 </tbody>
             </table>
         `;
-        
+
         content.innerHTML = html;
         updatePageLinks();
-        
+
     } catch (error) {
         content.innerHTML = `
             <h1>Statistics</h1>
-            <p>Error loading statistics: ${error.message}</p>
+            <p>Error loading statistics: ${escHtml(error.message)}</p>
         `;
         updatePageLinks();
     }

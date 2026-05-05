@@ -52,6 +52,14 @@ export function initRouter() {
         .on('/privacy', () => {
             renderPrivacy();
         })
+        .notFound(() => {
+            const content = document.getElementById('app-content');
+            content.innerHTML = `
+                <h1>Page Not Found</h1>
+                <p>The page you're looking for doesn't exist. <a href="/" data-navigo>Go home</a>.</p>
+            `;
+            updatePageLinks();
+        })
         .resolve();
 }
 

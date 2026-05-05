@@ -1,6 +1,6 @@
 import { getQuestions, getQuestionsBySubject, markAsLearnt, getSubjects } from '../js/appwrite.js';
 import { updatePageLinks, router } from '../js/router.js';
-import { escHtml } from '../js/utils.js';
+import { escHtml, showError } from '../js/utils.js';
 
 const optionLabels = ['A', 'B', 'C', 'D'];
 let currentQuestions = [];
@@ -60,7 +60,7 @@ export async function renderFlashcards(filterSubject = null) {
     } catch (error) {
         content.innerHTML = `
             <h1>Flashcards</h1>
-            <p>Error loading flashcards: ${error.message}</p>
+            <p>Error loading flashcards: ${escHtml(error.message)}</p>
         `;
         updatePageLinks();
     }
@@ -224,6 +224,6 @@ window.toggleLearntFlashcard = async function(learnt) {
         currentQuestions[currentIndex].learnt = learnt;
         renderCurrentFlashcard();
     } catch (error) {
-        alert('Error updating question: ' + error.message);
+        showError('Error updating question: ' + error.message);
     }
 };

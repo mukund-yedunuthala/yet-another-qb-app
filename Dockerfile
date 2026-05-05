@@ -5,7 +5,7 @@ COPY . .
 FROM nginxinc/nginx-unprivileged:stable-alpine
 
 LABEL maintainer="Mukund Yedunuthala" \
-      version="2.0.0" \
+      version="2.0.3" \
       security.policy="rootless"
 
 COPY --from=builder --chown=101:101 /app /usr/share/nginx/html

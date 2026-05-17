@@ -1,4 +1,4 @@
-import { getQuestions, getQuestionsBySubject, markAsLearnt, getSubjects } from '../js/appwrite.js';
+import { getQuestions, markAsLearnt } from '../js/appwrite.js';
 import { updatePageLinks, router } from '../js/router.js';
 import { escHtml, showError } from '../js/utils.js';
 
@@ -14,11 +14,12 @@ export async function renderFlashcards(filterSubject = null) {
     content.innerHTML = '<div class="loading">Loading flashcards...</div>';
     
     try {
-        const allSubjects = await getSubjects();
+        const fetched = await getQuestions();
+        const allSubjects = [...new Set(fetched.map(q => q.subject))].sort();
         currentSubject = filterSubject;
-        currentQuestions = filterSubject 
-            ? await getQuestionsBySubject(filterSubject)
-            : await getQuestions();
+        currentQuestions = filterSubject
+            ? fetched.filter(q => q.subject === filterSubject)
+            : fetched;
         
         if (currentQuestions.length === 0) {
             content.innerHTML = `

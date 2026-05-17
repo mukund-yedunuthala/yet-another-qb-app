@@ -1,4 +1,4 @@
-import { getQuestions, getQuestionsBySubject, deleteQuestion, markAsLearnt, getSubjects } from '../js/appwrite.js';
+import { getQuestions, deleteQuestion, markAsLearnt } from '../js/appwrite.js';
 import { updatePageLinks, router } from '../js/router.js';
 import { escHtml, showError } from '../js/utils.js';
 
@@ -13,12 +13,13 @@ export async function renderQuestions(filterSubject = null) {
     content.innerHTML = '<div class="loading">Loading questions...</div>';
 
     try {
-        const allSubjects = await getSubjects();
+        const fetched = await getQuestions();
+        const allSubjects = [...new Set(fetched.map(q => q.subject))].sort();
         allQuestions = filterSubject
-            ? await getQuestionsBySubject(filterSubject)
-            : await getQuestions();
+            ? fetched.filter(q => q.subject === filterSubject)
+            : fetched;
 
-        if (allQuestions.length === 0) {
+        if (fetched.length === 0) {
             content.innerHTML = `
                 <h1>Questions</h1>
                 <p>No questions found. <a href="/create" data-navigo>Create your first question</a>.</p>

@@ -1,4 +1,4 @@
-import { getStats } from '../js/appwrite.js';
+import { getStats, getQuestions } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
 
 export async function renderHome() {
@@ -39,13 +39,13 @@ export async function renderHome() {
                     <a href="/create" data-navigo><button class="outline">Create Question</button></a>
                     <a href="/subjects" data-navigo><button class="outline">Browse by Subject</button></a>
                     <a href="/stats" data-navigo><button class="outline">View Statistics</button></a>
+                    <button class="outline" onclick="exportQuestions()">Export JSON</button>
                 </div>
             </section>
         `;
         
-        // Update router links after content is loaded
         updatePageLinks();
-        
+
     } catch (error) {
         content.innerHTML = `
             <h1>Yet Another Question Bank App</h1>
@@ -54,7 +54,18 @@ export async function renderHome() {
             <a href="/create" data-navigo><button>Create First Question</button></a>
         `;
         
-        // Update router links after content is loaded
         updatePageLinks();
     }
 }
+
+window.exportQuestions = async function() {
+    const questions = await getQuestions();
+    const json = JSON.stringify(questions, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'questions.json';
+    a.click();
+    URL.revokeObjectURL(url);
+};

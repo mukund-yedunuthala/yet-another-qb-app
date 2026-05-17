@@ -4,6 +4,7 @@ import { escHtml, showError } from '../js/utils.js';
 
 const optionLabels = ['A', 'B', 'C', 'D'];
 let currentFilterSubject = null;
+let allQuestions = [];
 
 export async function renderQuestions(filterSubject = null) {
     const content = document.getElementById('app-content');
@@ -13,11 +14,11 @@ export async function renderQuestions(filterSubject = null) {
 
     try {
         const allSubjects = await getSubjects();
-        const questions = filterSubject
+        allQuestions = filterSubject
             ? await getQuestionsBySubject(filterSubject)
             : await getQuestions();
 
-        if (questions.length === 0) {
+        if (allQuestions.length === 0) {
             content.innerHTML = `
                 <h1>Questions</h1>
                 <p>No questions found. <a href="/create" data-navigo>Create your first question</a>.</p>
@@ -26,7 +27,7 @@ export async function renderQuestions(filterSubject = null) {
             return;
         }
 
-        let html = `
+        content.innerHTML = `
             <h1>Questions ${filterSubject ? `- ${escHtml(filterSubject)}` : ''}</h1>
 
             <div class="filter-bar">
@@ -39,44 +40,16 @@ export async function renderQuestions(filterSubject = null) {
                         ).join('')}
                     </select>
                 </label>
-                <span>Total: ${questions.length} questions</span>
+                <label>
+                    Search:
+                    <input type="search" id="question-search" placeholder="Search questions..." oninput="filterBySearch(this.value)">
+                </label>
+                <span id="question-count">Total: ${allQuestions.length} questions</span>
             </div>
+            <div id="question-cards"></div>
         `;
 
-        questions.forEach(q => {
-            const options = [q.optionA, q.optionB, q.optionC, q.optionD];
-            html += `
-                <div class="question-card ${q.learnt ? 'learnt' : ''}">
-                    <h3>${escHtml(q.question)}</h3>
-                    <ul class="options-list">
-                        ${options.map((option, index) => {
-                            const isCorrect = index === parseInt(q.correctAnswer);
-                            return `
-                                <li class="${isCorrect ? 'correct' : ''}">
-                                    <strong>${optionLabels[index]}.</strong> ${escHtml(option)}
-                                    ${isCorrect ? ' ✓' : ''}
-                                </li>
-                            `;
-                        }).join('')}
-                    </ul>
-                    ${q.explanation ? `
-                        <div class="explanation">
-                            <strong>Explanation:</strong> ${escHtml(q.explanation)}
-                        </div>
-                    ` : ''}
-
-                    <div class="question-actions">
-                        <button onclick="toggleLearnt('${q.$id}', ${!q.learnt})" class="${q.learnt ? 'outline' : ''}">
-                            ${q.learnt ? 'Mark as Not Learnt' : 'Mark as Learnt'}
-                        </button>
-                        <button class="outline" onclick="editQuestion('${q.$id}')">Edit</button>
-                        <button class="outline" onclick="deleteQuestionHandler('${q.$id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
-
-        content.innerHTML = html;
+        renderCards(allQuestions);
         updatePageLinks();
 
     } catch (error) {
@@ -89,6 +62,55 @@ export async function renderQuestions(filterSubject = null) {
     }
 }
 
+function renderCards(questions) {
+    const container = document.getElementById('question-cards');
+    const countEl = document.getElementById('question-count');
+    if (!container) return;
+
+    if (countEl) countEl.textContent = `Total: ${questions.length} questions`;
+
+    if (questions.length === 0) {
+        container.innerHTML = '<p>No questions match your search.</p>';
+        return;
+    }
+
+    let html = '';
+    questions.forEach(q => {
+        const options = [q.optionA, q.optionB, q.optionC, q.optionD];
+        html += `
+            <div class="question-card ${q.learnt ? 'learnt' : ''}">
+                <h3>${escHtml(q.question)}</h3>
+                <ul class="options-list">
+                    ${options.map((option, index) => {
+                        const isCorrect = index === parseInt(q.correctAnswer);
+                        return `
+                            <li class="${isCorrect ? 'correct' : ''}">
+                                <strong>${optionLabels[index]}.</strong> ${escHtml(option)}
+                                ${isCorrect ? ' ✓' : ''}
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+                ${q.explanation ? `
+                    <div class="explanation">
+                        <strong>Explanation:</strong> ${escHtml(q.explanation)}
+                    </div>
+                ` : ''}
+
+                <div class="question-actions">
+                    <button onclick="toggleLearnt('${q.$id}', ${!q.learnt})" class="${q.learnt ? 'outline' : ''}">
+                        ${q.learnt ? 'Mark as Not Learnt' : 'Mark as Learnt'}
+                    </button>
+                    <button class="outline" onclick="editQuestion('${q.$id}')">Edit</button>
+                    <button class="outline" onclick="deleteQuestionHandler('${q.$id}')">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 
 window.filterBySubject = function(subject) {
     if (subject) {
@@ -96,6 +118,14 @@ window.filterBySubject = function(subject) {
     } else {
         router.navigate('/questions');
     }
+};
+
+window.filterBySearch = function(text) {
+    const lower = text.toLowerCase();
+    const filtered = lower
+        ? allQuestions.filter(q => q.question.toLowerCase().includes(lower))
+        : allQuestions;
+    renderCards(filtered);
 };
 
 window.toggleLearnt = async function(id, learnt) {

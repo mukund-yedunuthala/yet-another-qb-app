@@ -21,7 +21,8 @@ export async function getQuestions() {
     try {
         const response = await tablesDB.listDocuments(
             PUBLIC_APPWRITE_DATABASE_ID,
-            PUBLIC_APPWRITE_TABLE_ID
+            PUBLIC_APPWRITE_TABLE_ID,
+            [Query.limit(5000)]
         );
         return response.documents;
     } catch (error) {
@@ -35,7 +36,7 @@ export async function getQuestionsBySubject(subject) {
         const response = await tablesDB.listDocuments(
             PUBLIC_APPWRITE_DATABASE_ID,
             PUBLIC_APPWRITE_TABLE_ID,
-            [Query.equal('subject', subject)]
+            [Query.equal('subject', subject), Query.limit(5000)]
         );
         return response.documents;
     } catch (error) {
@@ -49,7 +50,7 @@ export async function getLearntQuestions() {
         const response = await tablesDB.listDocuments(
             PUBLIC_APPWRITE_DATABASE_ID,
             PUBLIC_APPWRITE_TABLE_ID,
-            [Query.equal('learnt', true)]
+            [Query.equal('learnt', true), Query.limit(5000)]
         );
         return response.documents;
     } catch (error) {

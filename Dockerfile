@@ -1,11 +1,11 @@
-FROM alpine:3.23.3 AS builder
+FROM alpine:3.24.0 AS builder
 WORKDIR /app
 COPY . .
 
 FROM nginxinc/nginx-unprivileged:stable-alpine
 
 LABEL maintainer="Mukund Yedunuthala" \
-      version="2.0.3" \
+      version="2.0.5" \
       security.policy="rootless"
 
 COPY --from=builder --chown=101:101 /app /usr/share/nginx/html

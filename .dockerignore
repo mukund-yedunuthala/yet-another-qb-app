@@ -1,0 +1,15 @@
+.git
+.agents
+.claude
+.codex
+.env
+.env.*
+!.env.example
+.svelte-kit
+node_modules
+*.tar
+*.tar.gz
+Dockerfile
+docker-compose.yml
+docker-build-script.sh
+AGENTS.md

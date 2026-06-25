@@ -12,7 +12,7 @@ A personal MCQ question bank — create, browse, and practice with flashcards. N
 | UI | [Oat](https://github.com/knadh/oat) (CDN) |
 | Routing | [Navigo](https://github.com/krasimir/navigo) (CDN) |
 | Backend | [Appwrite](https://appwrite.io/) cloud |
-| Serving | nginx (Docker) or any static server |
+| Serving | Go static server (Docker) or any static server |
 
 ## Features
 
@@ -75,13 +75,20 @@ This is a static app — no build step, no `npm install`.
 
 ## Docker
 
-Build the image and export it as a tarball:
+Run tests:
+
+```sh
+go test ./...
+npm test
+```
+
+Build the local Go server binary, Docker image, and exported tarball:
 
 ```sh
 bash docker-build-script.sh
 ```
 
-Run with Docker Compose (uses `.env` values; env tokens in `js/config.js` are substituted at container startup):
+Run with Docker Compose. The Go server serves `/js/config.js` from `.env` values at request time:
 
 ```sh
 docker compose up -d
@@ -89,9 +96,19 @@ docker compose up -d
 
 The app is available at [http://localhost:8880](http://localhost:8880).
 
-The nginx entrypoint script (`docker/40-inject-env.sh`) replaces the `__APPWRITE_*__` tokens in `js/*.js` using env vars passed **without** the `PUBLIC_` prefix (i.e. `APPWRITE_ENDPOINT`, not `PUBLIC_APPWRITE_ENDPOINT`).
+The server reads env vars passed **without** the `PUBLIC_` prefix (i.e. `APPWRITE_ENDPOINT`, not `PUBLIC_APPWRITE_ENDPOINT`). `PUBLIC_APPWRITE_*` is accepted as a fallback.
 
-Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) are served via `nginx/headers.conf`.
+Logs go to stdout and are visible with Docker Compose:
+
+```sh
+docker compose logs -f
+LOG_LEVEL=debug docker compose up
+LOG_FORMAT=json docker compose up
+```
+
+`LOG_LEVEL` supports `debug`, `info`, `warn`, and `error`; default is `info`. `LOG_FORMAT` supports `text` and `json`; default is `text`.
+
+Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) and SPA fallback are handled by `server.go`.
 
 ## Project structure
 
@@ -103,8 +120,8 @@ js/
                         also contains inline renderers for /about, /imprint, /privacy
   appwrite.js           All Appwrite CRUD (getQuestions, createQuestion, updateQuestion,
                         deleteQuestion, markAsLearnt, getSubjects, getStats)
-  config.js             Appwrite config constants; __PLACEHOLDER__ tokens replaced at
-                        Docker startup by docker/40-inject-env.sh
+  config.js             Appwrite config constants for local static serving;
+                        Docker serves this path dynamically from env vars
   utils.js              Shared helpers (escHtml for XSS-safe innerHTML interpolation)
 pages/
   home.js               Dashboard with stats summary
@@ -114,10 +131,7 @@ pages/
   flashcards.js         Interactive study mode with shuffle and learnt tracking
   stats.js              Detailed statistics with per-subject breakdown
 css/styles.css          Custom overrides on top of Oat UI
-docker/
-  40-inject-env.sh      Entrypoint script that injects env vars into js/config.js at runtime
-nginx/
-  headers.conf          nginx server block adding security headers
+server.go               Docker static server, env config endpoint, security headers
 ```
 
 Each `pages/*.js` file exports a single `render*()` function that replaces `#app-content` innerHTML and calls `updatePageLinks()` for Navigo to pick up new `data-navigo` links.

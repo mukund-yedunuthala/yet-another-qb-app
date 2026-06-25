@@ -1,18 +1,16 @@
-FROM alpine:3.24.0 AS builder
-WORKDIR /app
-COPY . .
-
-FROM nginxinc/nginx-unprivileged:stable-alpine
+FROM scratch
 
 LABEL maintainer="Mukund Yedunuthala" \
-      version="2.0.5" \
+      version="2.0.6" \
       security.policy="rootless"
 
-COPY --from=builder --chown=101:101 /app /usr/share/nginx/html
-COPY --chown=101:101 nginx/headers.conf /etc/nginx/conf.d/headers.conf
-COPY --chown=101:101 docker/40-inject-env.sh /docker-entrypoint.d/40-inject-env.sh
+COPY server /server
+COPY index.html favicon.ico /app/
+COPY css /app/css
+COPY js /app/js
+COPY pages /app/pages
 
-RUN sed -i 's|error_log  /var/log/nginx/error.log notice;|error_log  /var/log/nginx/error.log warn;|' /etc/nginx/nginx.conf && \
-    sed -i 's|access_log  /var/log/nginx/access.log  main;|access_log off;|' /etc/nginx/nginx.conf
+USER 65532:65532
 
 EXPOSE 8080
+ENTRYPOINT ["/server"]

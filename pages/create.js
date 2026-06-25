@@ -1,4 +1,4 @@
-import { createQuestion, updateQuestion, getSubjects, tablesDB, PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_APPWRITE_TABLE_ID } from '../js/appwrite.js';
+import { createQuestion, updateQuestion, getQuestion, getSubjects } from '../js/appwrite.js';
 import { router, updatePageLinks } from '../js/router.js';
 import { escHtml, showError } from '../js/utils.js';
 
@@ -12,11 +12,7 @@ export async function renderCreate(questionId = null) {
         allSubjects = await getSubjects();
         
         if (questionId) {
-            existingQuestion = await tablesDB.getDocument(
-                PUBLIC_APPWRITE_DATABASE_ID,
-                PUBLIC_APPWRITE_TABLE_ID,
-                questionId
-            );
+            existingQuestion = await getQuestion(questionId);
         }
     } catch (error) {
         console.error('Error loading data:', error);
@@ -109,16 +105,17 @@ export async function renderCreate(questionId = null) {
         btn.disabled = true;
         btn.textContent = 'Saving…';
 
+        const data = new FormData(e.target);
         const formData = {
-            question: document.getElementById('question').value.trim(),
-            optionA: document.getElementById('optionA').value.trim(),
-            optionB: document.getElementById('optionB').value.trim(),
-            optionC: document.getElementById('optionC').value.trim(),
-            optionD: document.getElementById('optionD').value.trim(),
-            correctAnswer: parseInt(document.getElementById('correctAnswer').value),
-            subject: document.getElementById('subject').value.trim(),
-            explanation: document.getElementById('explanation').value.trim(),
-            learnt: isEdit ? document.getElementById('learnt').checked : false
+            question: data.get('question').trim(),
+            optionA: data.get('optionA').trim(),
+            optionB: data.get('optionB').trim(),
+            optionC: data.get('optionC').trim(),
+            optionD: data.get('optionD').trim(),
+            correctAnswer: parseInt(data.get('correctAnswer')),
+            subject: data.get('subject').trim(),
+            explanation: data.get('explanation').trim(),
+            learnt: isEdit ? data.has('learnt') : false
         };
 
         try {

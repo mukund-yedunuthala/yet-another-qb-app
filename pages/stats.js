@@ -1,6 +1,6 @@
 import { getQuestions } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
-import { escHtml } from '../js/utils.js';
+import { escHtml, subjectStats } from '../js/utils.js';
 
 export async function renderStats() {
     const content = document.getElementById('app-content');
@@ -15,17 +15,9 @@ export async function renderStats() {
         const toLearn = total - learnt;
         const overallProgress = total > 0 ? Math.round((learnt / total) * 100) : 0;
 
-        // Group by subject in one pass
-        const subjectStats = {};
-        for (const q of questions) {
-            if (!subjectStats[q.subject]) {
-                subjectStats[q.subject] = { total: 0, learnt: 0 };
-            }
-            subjectStats[q.subject].total++;
-            if (q.learnt) subjectStats[q.subject].learnt++;
-        }
-        for (const key of Object.keys(subjectStats)) {
-            const s = subjectStats[key];
+        const subjects = subjectStats(questions);
+        for (const key of Object.keys(subjects)) {
+            const s = subjects[key];
             s.progress = s.total > 0 ? Math.round((s.learnt / s.total) * 100) : 0;
         }
 
@@ -66,7 +58,7 @@ export async function renderStats() {
                 <tbody>
         `;
 
-        Object.entries(subjectStats).forEach(([subject, data]) => {
+        Object.entries(subjects).forEach(([subject, data]) => {
             html += `
                 <tr>
                     <td><strong>${escHtml(subject)}</strong></td>

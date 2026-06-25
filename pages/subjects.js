@@ -1,6 +1,6 @@
 import { getQuestions } from '../js/appwrite.js';
 import { updatePageLinks } from '../js/router.js';
-import { escHtml } from '../js/utils.js';
+import { escHtml, subjectStats } from '../js/utils.js';
 
 export async function renderSubjects() {
     const content = document.getElementById('app-content');
@@ -10,16 +10,7 @@ export async function renderSubjects() {
     try {
         const questions = await getQuestions();
 
-        // Group by subject in one pass
-        const subjectMap = {};
-        for (const q of questions) {
-            if (!subjectMap[q.subject]) {
-                subjectMap[q.subject] = { total: 0, learnt: 0 };
-            }
-            subjectMap[q.subject].total++;
-            if (q.learnt) subjectMap[q.subject].learnt++;
-        }
-
+        const subjectMap = subjectStats(questions);
         const subjects = Object.keys(subjectMap).sort();
 
         if (subjects.length === 0) {

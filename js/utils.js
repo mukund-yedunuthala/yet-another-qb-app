@@ -19,3 +19,13 @@ export function showError(message) {
     content.prepend(el);
     setTimeout(() => el.remove(), 5000);
 }
+
+export function subjectStats(questions) {
+    const stats = {};
+    for (const q of questions) {
+        stats[q.subject] ??= { total: 0, learnt: 0 };
+        stats[q.subject].total++;
+        if (q.learnt) stats[q.subject].learnt++;
+    }
+    return stats;
+}

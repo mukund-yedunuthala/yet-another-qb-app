@@ -93,10 +93,8 @@ export async function renderCreate(questionId = null) {
             </div>
         </form>
     `;
-    // Update links after content is loaded
     updatePageLinks();
     
-    // Handle form submission
     document.getElementById('question-form').addEventListener('submit', async (e) => {
         e.preventDefault();
 

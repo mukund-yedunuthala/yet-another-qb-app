@@ -30,7 +30,6 @@ export async function renderFlashcards(filterSubject = null) {
             return;
         }
         
-        // Shuffle questions for variety
         currentQuestions = shuffleArray(currentQuestions);
         currentIndex = 0;
         showingAnswer = false;
@@ -75,7 +74,6 @@ function renderCurrentFlashcard() {
     const progress = Math.round(((currentIndex + 1) / currentQuestions.length) * 100);
     
     if (!showingAnswer) {
-        // Show question side
         container.innerHTML = `
             <div class="flashcard-progress">
                 <p>Card ${currentIndex + 1} of ${currentQuestions.length} (${progress}%)</p>
@@ -104,7 +102,6 @@ function renderCurrentFlashcard() {
             </div>
         `;
     } else {
-        // Show answer side
         const options = [question.optionA, question.optionB, question.optionC, question.optionD];
         
         container.innerHTML = `
@@ -161,7 +158,6 @@ function renderCurrentFlashcard() {
         `;
     }
     
-    // Update links in case any were added
     updatePageLinks();
 }
 
@@ -174,7 +170,6 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-// Global functions for onclick handlers
 window.flipFlashcard = function() {
     showingAnswer = !showingAnswer;
     renderCurrentFlashcard();
@@ -211,7 +206,6 @@ window.restartFlashcards = function() {
 
 window.filterFlashcardsBySubject = function(subject) {
     if (subject) {
-        // Use router.navigate with proper encoding
         router.navigate(`/flashcards/${encodeURIComponent(subject)}`);
     } else {
         router.navigate('/flashcards');

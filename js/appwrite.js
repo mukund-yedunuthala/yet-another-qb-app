@@ -14,7 +14,6 @@ client
 
 const tablesDB = new Databases(client);
 
-// Question CRUD operations
 export async function getQuestions() {
     const response = await tablesDB.listDocuments(
         PUBLIC_APPWRITE_DATABASE_ID,
@@ -25,7 +24,7 @@ export async function getQuestions() {
 }
 
 export async function getQuestion(questionId) {
-    return await tablesDB.getDocument(
+    return tablesDB.getDocument(
         PUBLIC_APPWRITE_DATABASE_ID,
         PUBLIC_APPWRITE_TABLE_ID,
         questionId
@@ -33,7 +32,7 @@ export async function getQuestion(questionId) {
 }
 
 export async function createQuestion(questionData) {
-    return await tablesDB.createDocument(
+    return tablesDB.createDocument(
         PUBLIC_APPWRITE_DATABASE_ID,
         PUBLIC_APPWRITE_TABLE_ID,
         ID.unique(),
@@ -42,7 +41,7 @@ export async function createQuestion(questionData) {
 }
 
 export async function updateQuestion(questionId, questionData) {
-    return await tablesDB.updateDocument(
+    return tablesDB.updateDocument(
         PUBLIC_APPWRITE_DATABASE_ID,
         PUBLIC_APPWRITE_TABLE_ID,
         questionId,
@@ -51,7 +50,7 @@ export async function updateQuestion(questionId, questionData) {
 }
 
 export async function deleteQuestion(questionId) {
-    return await tablesDB.deleteDocument(
+    return tablesDB.deleteDocument(
         PUBLIC_APPWRITE_DATABASE_ID,
         PUBLIC_APPWRITE_TABLE_ID,
         questionId
@@ -59,7 +58,7 @@ export async function deleteQuestion(questionId) {
 }
 
 export async function markAsLearnt(questionId, learnt) {
-    return await updateQuestion(questionId, { learnt });
+    return updateQuestion(questionId, { learnt });
 }
 
 export async function getSubjects() {

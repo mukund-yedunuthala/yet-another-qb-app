@@ -5,7 +5,7 @@
 A personal MCQ question bank — create, browse, and practice with flashcards. No build step, no framework, no dependencies to install.
 
 ![Appwrite](https://img.shields.io/badge/Appwrite-F02E65?style=for-the-badge&logo=appwrite&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 
 ## Stack
 
@@ -154,4 +154,4 @@ Each `pages/*.js` file exports a single `render*()` function that replaces `#app
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+AGPL-3.0-only — see [LICENSE](LICENSE).

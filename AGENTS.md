@@ -107,6 +107,16 @@ Subjects are derived by querying all questions and extracting unique `subject` v
 - Preserve the no-build, no-framework model unless the user explicitly asks for a larger architectural change.
 - Do not treat `.env` as client-side configuration. Local static serving requires manually replacing placeholders in `js/config.js`; Docker serves `/js/config.js` dynamically from runtime environment variables.
 
+## License (AGPL-3.0-only)
+
+This project is licensed under the GNU Affero General Public License v3.0 only; see `LICENSE` (fetched verbatim from https://www.gnu.org/licenses/agpl-3.0.txt). Prior versions distributed under MIT remain MIT for those copies; AGPL applies to new versions.
+
+- Keep all new code under AGPL-3.0-only. Do not introduce MIT/BSD/Apache-only headers or relicense files to a permissive license.
+- Only add dependencies with AGPL-compatible licenses (current CDN deps: Oat MIT, Navigo MIT, Appwrite SDK BSD-3-Clause — all compatible as they impose no further restrictions). Do not vendor or bundle GPL-incompatible or proprietary code.
+- Modified versions run on a network server must prominently offer all remote users the Corresponding Source from a network server at no charge (AGPL §13). Do not remove or hide source-offer UI/links; the Docker image and `make dist` tarball count as conveying and must carry the license and source availability.
+- Preserve copyright and license notices; mark modified files with prominent notices stating the change and date (AGPL §5a).
+- Using Appwrite Cloud as a backend service is not conveying it, but any AGPL-covered change deployed to users triggers the source-offer obligation above.
+
 ## Codex Workflows
 
 ### `bump-version`

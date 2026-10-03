@@ -1,7 +1,7 @@
 FROM scratch
 
 LABEL maintainer="Mukund Yedunuthala" \
-      version="2.1.0" \
+      version="2.1.1" \
       security.policy="rootless"
 
 COPY server /server

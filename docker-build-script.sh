@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-version=2.1.0
+version=2.1.1
 image="yaqba:$version"
 tarball="yaqba_v${version}_amd64.tar.gz"
 

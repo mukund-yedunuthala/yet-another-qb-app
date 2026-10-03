@@ -87,7 +87,7 @@ function renderAbout() {
         </ul>
         
         <h2>Version</h2>
-        <p>Version 2.1.0 - October 2026</p>
+        <p>Version 2.1.1 - October 2026</p>
     `;
     updatePageLinks();
 }

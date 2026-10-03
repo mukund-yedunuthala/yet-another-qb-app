@@ -1,6 +1,6 @@
 services:
   question-bank:
-    image: yaqba:2.1.0
+    image: yaqba:2.1.1
     container_name: yaqba
     env_file:
       - .env

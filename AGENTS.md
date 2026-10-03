@@ -13,8 +13,9 @@ The `.svelte-kit/` directory is a stale artifact from a previous rewrite and can
 Serve the files with any static server:
 
 ```sh
+make run
+# or, without dynamic Docker-style config:
 npx serve .
-# or
 python -m http.server 5173
 ```
 
@@ -25,14 +26,13 @@ Before serving, replace the `__PLACEHOLDER__` tokens in `js/config.js` with real
 Run tests:
 
 ```sh
-go test ./...
-npm test
+make test
 ```
 
 Build the local Go server binary, Docker image, and exported tarball:
 
 ```sh
-bash docker-build-script.sh
+make dist
 ```
 
 Run with Docker Compose:

@@ -66,8 +66,9 @@ This is a static app — no build step, no `npm install`.
 3. Serve the directory:
 
    ```sh
+   make run
+   # or, without dynamic Docker-style config:
    npx serve .
-   # or
    python -m http.server 5173
    ```
 
@@ -78,14 +79,13 @@ This is a static app — no build step, no `npm install`.
 Run tests:
 
 ```sh
-go test ./...
-npm test
+make test
 ```
 
 Build the local Go server binary, Docker image, and exported tarball:
 
 ```sh
-bash docker-build-script.sh
+make dist
 ```
 
 Run with Docker Compose. The Go server serves `/js/config.js` from `.env` values at request time:

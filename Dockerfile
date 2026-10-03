@@ -4,7 +4,7 @@ LABEL maintainer="Mukund Yedunuthala" \
       version="2.1.1" \
       security.policy="rootless"
 
-COPY server /server
+COPY bin/server /server
 COPY index.html favicon.svg /app/
 COPY css /app/css
 COPY js /app/js

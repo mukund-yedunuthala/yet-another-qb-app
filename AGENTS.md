@@ -55,7 +55,7 @@ The Go server serves `/js/config.js` dynamically using environment variables pas
 
 Logs go to stdout for `docker compose logs`. `LOG_LEVEL` supports `debug`, `info`, `warn`, and `error` with default `info`; `LOG_FORMAT` supports `text` and `json` with default `text`.
 
-Security headers and SPA fallback are handled by `server.go`. The Dockerfile uses a prebuilt local `server` binary and a `scratch` runtime image.
+Security headers and SPA fallback are handled by `server/server.go`. The Dockerfile uses a prebuilt local `bin/server` binary and a `scratch` runtime image.
 
 ## Architecture
 
@@ -79,7 +79,7 @@ pages/
   flashcards.js     Interactive study mode with shuffle and learnt tracking.
   stats.js          Detailed statistics with per-subject breakdown.
 css/styles.css      Custom overrides on top of Oat UI.
-server.go           Docker static server, env config endpoint, security headers, SPA fallback.
+server/server.go    Docker static server, env config endpoint, security headers, SPA fallback.
 ```
 
 Each `pages/*.js` file exports a single `render*()` function that replaces `#app-content` innerHTML and calls `updatePageLinks()` so Navigo picks up newly injected `data-navigo` links.
@@ -113,9 +113,19 @@ Subjects are derived by querying all questions and extracting unique `subject` v
 
 When asked to bump the project version, accept `major`, `minor`, `patch` (default), or an explicit semver such as `2.1.0`.
 
-1. Find project version strings with `rg`, ignoring `.git/`, `node_modules/`, lockfiles, `.svelte-kit/`, CDN URLs, SRI hashes, and binary/dist artifacts.
-2. Treat the project version as the semver appearing in release/deployment surfaces such as `Dockerfile`, `docker-compose.yml`, `docker-build-script.sh`, `index.html`, `js/router.js`, or package metadata if present. Do not change dependency versions.
-3. Compute the new version from the requested bump or explicit semver.
-4. Update only files containing the project version, using normal file edits.
+1. Find the current version. Grep the project for semver strings, ignoring `.git/`, `node_modules/`, lockfiles, CDN URLs, SRI hashes, and binary/dist artifacts:
+
+```
+grep -rn --include="*.js" --include="*.html" --include="*.json" \
+     --include="*.yml" --include="*.yaml" --include="*.sh" \
+     --include="*.md" --include="*.conf" --include="*.txt" \
+     --include="Dockerfile" \
+     -E '[0-9]+\.[0-9]+\.[0-9]+' . \
+  | grep -v '\.git\|node_modules\|package-lock\|yarn\.lock\|CDN\|sri\|sha\|integrity\|jsdelivr\|unpkg\|cdnjs'
+```
+
+2. Treat the project version as the semver appearing in release/deployment surfaces such as `Dockerfile`, `docker-compose.yml`, `scripts/docker-build-script.sh`, `index.html`, `js/router.js`, or package metadata if present. Do not change dependency versions.
+3. Compute the new version: use an explicit semver directly, otherwise apply the bump type (`major` → increment first segment, reset others to 0; `minor` → increment second segment, reset third to 0; `patch` → increment third segment only).
+4. Update only files containing the project version, using normal file edits. Do not touch dependency version strings in `node_modules`, lockfiles, or CDN URLs.
 5. Stage only modified version files and commit with `chore: bump version to <new_version>` when the user asked for the full command behavior.
 6. Report each file changed and the old -> new substitution.

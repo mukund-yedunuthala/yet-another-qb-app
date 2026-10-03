@@ -14,11 +14,12 @@ export GOCACHE="${GOCACHE:-/tmp/yaqba-go-cache}"
 go test ./...
 npm test
 
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o server server.go
+mkdir -p bin
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/server ./server
 
-file server | grep -q 'ELF 64-bit.*x86-64.*statically linked' || {
-  echo "server is not a static linux/amd64 binary" >&2
-  file server >&2
+file bin/server | grep -q 'ELF 64-bit.*x86-64.*statically linked' || {
+  echo "bin/server is not a static linux/amd64 binary" >&2
+  file bin/server >&2
   exit 1
 }
 

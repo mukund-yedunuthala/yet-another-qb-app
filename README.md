@@ -122,7 +122,7 @@ LOG_FORMAT=json docker compose up
 
 `LOG_LEVEL` supports `debug`, `info`, `warn`, and `error`; default is `info`. `LOG_FORMAT` supports `text` and `json`; default is `text`.
 
-Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) and SPA fallback are handled by `server.go`.
+Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) and SPA fallback are handled by `server/server.go`.
 
 ## Project structure
 
@@ -145,7 +145,7 @@ pages/
   flashcards.js         Interactive study mode with shuffle and learnt tracking
   stats.js              Detailed statistics with per-subject breakdown
 css/styles.css          Custom overrides on top of Oat UI
-server.go               Docker static server, env config endpoint, security headers
+server/server.go        Docker static server, env config endpoint, security headers
 ```
 
 Each `pages/*.js` file exports a single `render*()` function that replaces `#app-content` innerHTML and calls `updatePageLinks()` for Navigo to pick up new `data-navigo` links.

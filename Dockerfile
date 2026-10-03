@@ -5,7 +5,7 @@ LABEL maintainer="Mukund Yedunuthala" \
       security.policy="rootless"
 
 COPY server /server
-COPY index.html favicon.ico /app/
+COPY index.html favicon.svg /app/
 COPY css /app/css
 COPY js /app/js
 COPY pages /app/pages

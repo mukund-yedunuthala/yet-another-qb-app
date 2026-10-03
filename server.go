@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -184,7 +183,7 @@ func requestLogger(logger *slog.Logger, next http.Handler) http.Handler {
 		w.Header().Set("X-Request-ID", requestID)
 
 		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-		next.ServeHTTP(sw, r.WithContext(context.WithValue(r.Context(), requestIDKey{}, requestID)))
+		next.ServeHTTP(sw, r)
 
 		logger.Info("request",
 			"method", r.Method,
@@ -197,5 +196,3 @@ func requestLogger(logger *slog.Logger, next http.Handler) http.Handler {
 		)
 	})
 }
-
-type requestIDKey struct{}

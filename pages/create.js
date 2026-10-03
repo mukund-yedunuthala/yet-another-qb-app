@@ -16,6 +16,16 @@ export async function renderCreate(questionId = null) {
         }
     } catch (error) {
         console.error('Error loading data:', error);
+
+        if (questionId) {
+            content.innerHTML = `
+                <h1>Unable to Load Question</h1>
+                <p>This question could not be loaded for editing. It may have been deleted or temporarily unavailable.</p>
+                <a href="/questions" data-navigo>Back to Questions</a>
+            `;
+            updatePageLinks();
+            return;
+        }
     }
     
     const isEdit = !!existingQuestion;

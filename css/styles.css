@@ -130,6 +130,30 @@ footer nav {
     color: var(--primary);
 }
 
+/* --- Grids ---
+   Layout lives here rather than in inline style attributes so the strict
+   Content-Security-Policy (style-src without 'unsafe-inline') does not
+   block it. */
+.stats-grid, .subject-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.subject-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* Cards supply their own bottom margin outside a grid. */
+.stats-grid .stat-card, .subject-grid .subject-card {
+    margin-bottom: 0;
+}
+
+
 /* --- Flashcard Mode --- */
 .flashcard-progress {
     margin-bottom: 1.5rem;

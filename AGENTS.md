@@ -6,20 +6,28 @@ This file provides platform-agnostic guidance for coding agents working in this 
 
 Yet Another Question Bank App (YAQBA) is a vanilla JavaScript single-page app for managing and practicing MCQ questions. It has no build step and no framework.
 
-The `.svelte-kit/` directory is a stale artifact from a previous rewrite and can be ignored.
-
 ## Running Locally
 
-Serve the files with any static server:
+For the Go server (requires Go), copy `.env.example` to `.env` and fill in your Appwrite credentials. `make run` does not load `.env` itself, so export its values first:
 
 ```sh
+cp .env.example .env
+# Edit .env with your Appwrite credentials before continuing.
+set -a
+. ./.env
+set +a
 make run
-# or, without dynamic Docker-style config:
-npx serve .
-python -m http.server 5173
 ```
 
-Before serving, replace the `__PLACEHOLDER__` tokens in `js/config.js` with real Appwrite credentials, typically copied from `.env`. The `.env` file is not auto-injected in local development; that only happens inside Docker.
+The Go server dynamically serves `/js/config.js` from environment variables and accepts `APPWRITE_*` and `PUBLIC_APPWRITE_*` names.
+
+For an external static server, replace the `__PLACEHOLDER__` tokens in `js/config.js` with real Appwrite credentials; static servers do not read `.env`. Then serve the directory, for example:
+
+```sh
+npx serve .
+# or
+python -m http.server 5173
+```
 
 ## Docker
 

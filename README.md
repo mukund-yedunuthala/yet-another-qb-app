@@ -45,34 +45,34 @@ Set collection permissions according to your access needs. Subjects are derived 
 
 ## Running locally
 
-This is a static app — no build step, no `npm install`.
+This is a vanilla JavaScript app with no build step or npm runtime dependencies. Choose one of these serving options:
 
-1. Copy `.env.example` to `.env` and fill in your Appwrite credentials:
+### Run with the Go server
 
-   ```
-   PUBLIC_APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1
-   PUBLIC_APPWRITE_PROJECT_ID=your_project_id
-   PUBLIC_APPWRITE_DATABASE_ID=your_database_id
-   PUBLIC_APPWRITE_TABLE_ID=your_collection_id
-   ```
+Copy `.env.example` to `.env` and fill in your Appwrite credentials. `make run` does not load `.env` automatically; export its values before starting the server:
 
-2. Replace the `__PLACEHOLDER__` tokens in `js/config.js` with your actual values (the `.env` is **not** auto-injected outside Docker):
+```sh
+cp .env.example .env
+# Edit .env, then:
+set -a
+. ./.env
+set +a
+make run
+```
 
-   ```sh
-   sed -i 's|__APPWRITE_ENDPOINT__|https://fra.cloud.appwrite.io/v1|g' js/config.js
-   # repeat for the other three tokens
-   ```
+The Go server dynamically serves `/js/config.js` from environment variables. It accepts both `APPWRITE_*` and `PUBLIC_APPWRITE_*` names. Go is required for this option.
 
-3. Serve the directory:
+### Use another static server
 
-   ```sh
-   make run
-   # or, without dynamic Docker-style config:
-   npx serve .
-   python -m http.server 5173
-   ```
+For a static server, replace the `__PLACEHOLDER__` tokens in `js/config.js` with your Appwrite credentials; `.env` is not automatically read by static servers. Then serve the directory:
 
-4. Open [http://localhost:5173](http://localhost:5173).
+```sh
+npx serve .
+# or
+python -m http.server 5173
+```
+
+Open the URL printed by the server (typically [http://localhost:5173](http://localhost:5173)).
 
 ## Docker
 

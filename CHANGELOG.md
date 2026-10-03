@@ -1,5 +1,18 @@
 # Changelog
 
+### [v2.1.1](https://github.com/mukund-yedunuthala/yet-another-qb-app/compare/v2.1.0...v2.1.1) (2026-10-03)
+
+#### Fixes
+
+* handle deep links and invalid question edits
+([0e60924](https://github.com/mukund-yedunuthala/yet-another-qb-app/commit/0e609242656e2cb323538d61435b410e834cf7aa))
+* **ui:** replace inline style attributes with CSS classes
+([7d37909](https://github.com/mukund-yedunuthala/yet-another-qb-app/commit/7d379096bf6528f8c438aeea8bcc3f1f3ebb08e6))
+* **flashcards:** set progress bar width via CSSOM
+([580c6b6](https://github.com/mukund-yedunuthala/yet-another-qb-app/commit/580c6b6ea8798ca3707f97bf642e8106e6e9e140))
+* **ui:** define missing .stats-grid and .subject-grid layouts
+([4f7587f](https://github.com/mukund-yedunuthala/yet-another-qb-app/commit/4f7587fd9deebc80bc139100de8c38d9c45ad1bb))
+
 ## [v2.1.0](https://github.com/mukund-yedunuthala/yet-another-qb-app/compare/v2.0.6...v2.1.0) (2026-10-03)
 
 ### Features

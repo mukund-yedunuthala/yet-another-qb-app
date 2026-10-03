@@ -169,6 +169,7 @@ footer nav {
 }
 
 .progress-fill {
+    width: 0; /* Set from JS via CSSOM; CSP blocks inline style attributes */
     height: 100%;
     background-color: var(--primary);
     transition: width 0.3s ease;

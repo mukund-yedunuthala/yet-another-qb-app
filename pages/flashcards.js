@@ -78,7 +78,7 @@ function renderCurrentFlashcard() {
             <div class="flashcard-progress">
                 <p>Card ${currentIndex + 1} of ${currentQuestions.length} (${progress}%)</p>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress}%;"></div>
+                    <div class="progress-fill"></div>
                 </div>
             </div>
 
@@ -108,7 +108,7 @@ function renderCurrentFlashcard() {
             <div class="flashcard-progress">
                 <p>Card ${currentIndex + 1} of ${currentQuestions.length} (${progress}%)</p>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress}%;"></div>
+                    <div class="progress-fill"></div>
                 </div>
             </div>
             
@@ -157,6 +157,11 @@ function renderCurrentFlashcard() {
             ` : ''}
         `;
     }
+    
+    // Set via CSSOM rather than an inline style attribute, which the strict
+    // Content-Security-Policy blocks (style-src omits 'unsafe-inline').
+    const fill = container.querySelector('.progress-fill');
+    if (fill) fill.style.width = `${progress}%`;
     
     updatePageLinks();
 }

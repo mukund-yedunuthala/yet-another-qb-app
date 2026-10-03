@@ -1,11 +1,12 @@
 # Yet Another Question Bank App
 
-[![AI-DECLARATION: copilot](https://img.shields.io/badge/䷼%20AI--DECLARATION-copilot-fee2e2?labelColor=fee2e2)](https://ai-declaration.md)
-
 A personal MCQ question bank — create, browse, and practice with flashcards. No build step, no framework, no dependencies to install.
 
+[![AI-DECLARATION: copilot](https://img.shields.io/badge/䷼%20AI--DECLARATION-copilot-fee2e2?labelColor=fee2e2)](https://ai-declaration.md)
 ![Appwrite](https://img.shields.io/badge/Appwrite-F02E65?style=for-the-badge&logo=appwrite&logoColor=white)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
+
+> **Note:** This repository is maintained for personal use and is currently **not accepting contributions** (pull requests or issue filings).
 
 ## Stack
 

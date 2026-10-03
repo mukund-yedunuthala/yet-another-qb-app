@@ -4,6 +4,7 @@ node_modules
 /.svelte-kit
 /server
 *.tar.gz
+/.playwright-mcp
 
 # OS
 .DS_Store

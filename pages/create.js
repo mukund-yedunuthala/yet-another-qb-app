@@ -87,7 +87,7 @@ export async function renderCreate(questionId = null) {
                 </div>
             ` : ''}
             
-            <div style="display: flex; gap: 1rem;">
+            <div class="form-actions">
                 <button type="submit">${isEdit ? 'Update' : 'Create'} Question</button>
                 <a href="/questions" data-navigo><button type="button" class="outline">Cancel</button></a>
             </div>

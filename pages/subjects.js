@@ -35,17 +35,17 @@ export async function renderSubjects() {
             const progress = total > 0 ? Math.round((learnt / total) * 100) : 0;
 
             html += `
-                <a href="/questions/${encodeURIComponent(name)}" data-navigo style="text-decoration: none; color: inherit;">
+                <a href="/questions/${encodeURIComponent(name)}" data-navigo class="subject-card-link">
                     <div class="subject-card">
                         <h3>${escHtml(name)}</h3>
                         <div class="count">${total}</div>
                         <p>Total Questions</p>
-                        <hr style="margin: 1rem 0;">
-                        <p style="margin: 0.5rem 0;">
+                        <hr>
+                        <p class="subject-card-summary">
                             <strong>${learnt}</strong> Learnt |
                             <strong>${toLearn}</strong> To Learn
                         </p>
-                        <p style="color: var(--primary); margin: 0.5rem 0;">
+                        <p class="subject-card-progress">
                             ${progress}% Progress
                         </p>
                     </div>

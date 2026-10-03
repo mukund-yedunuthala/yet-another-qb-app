@@ -45,10 +45,10 @@ export async function renderStats() {
             </div>
 
             <h2>Subject-wise Breakdown</h2>
-            <table style="width: 100%; margin-top: 1rem;">
+            <table class="stats-table">
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Subject</th>
+                        <th>Subject</th>
                         <th>Total</th>
                         <th>Learnt</th>
                         <th>To Learn</th>
@@ -62,10 +62,10 @@ export async function renderStats() {
             html += `
                 <tr>
                     <td><strong>${escHtml(subject)}</strong></td>
-                    <td style="text-align: center;">${data.total}</td>
-                    <td style="text-align: center;">${data.learnt}</td>
-                    <td style="text-align: center;">${data.total - data.learnt}</td>
-                    <td style="text-align: center;">${data.progress}%</td>
+                    <td>${data.total}</td>
+                    <td>${data.learnt}</td>
+                    <td>${data.total - data.learnt}</td>
+                    <td>${data.progress}%</td>
                 </tr>
             `;
         });

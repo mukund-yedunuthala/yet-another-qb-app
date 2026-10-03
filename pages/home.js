@@ -34,7 +34,7 @@ export async function renderHome() {
             
             <section>
                 <h2>Quick Actions</h2>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                <div class="quick-actions">
                     <a href="/flashcards" data-navigo><button>Practice Flashcards</button></a>
                     <a href="/create" data-navigo><button class="outline">Create Question</button></a>
                     <a href="/subjects" data-navigo><button class="outline">Browse by Subject</button></a>

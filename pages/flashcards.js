@@ -149,7 +149,7 @@ function renderCurrentFlashcard() {
             </div>
             
             ${currentIndex === currentQuestions.length - 1 ? `
-                <div style="text-align: center; margin-top: 2rem;">
+                <div class="flashcard-end">
                     <p><strong>You've reached the end!</strong></p>
                     <button onclick="restartFlashcards()">Restart from Beginning</button>
                     <a href="/" data-navigo><button class="outline">Back to Home</button></a>

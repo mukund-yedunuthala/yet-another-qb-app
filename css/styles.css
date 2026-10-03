@@ -153,6 +153,51 @@ footer nav {
     margin-bottom: 0;
 }
 
+.subject-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.subject-card hr {
+    margin: 1rem 0;
+}
+
+.subject-card-summary {
+    margin: 0.5rem 0;
+}
+
+.subject-card-progress {
+    margin: 0.5rem 0;
+    color: var(--primary);
+}
+
+/* --- Statistics Table --- */
+.stats-table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.stats-table th, .stats-table td {
+    text-align: center;
+}
+
+.stats-table th:first-child, .stats-table td:first-child {
+    text-align: left;
+}
+
+/* --- Button Rows --- */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
 
 /* --- Flashcard Mode --- */
 .flashcard-progress {
@@ -173,6 +218,11 @@ footer nav {
     height: 100%;
     background-color: var(--primary);
     transition: width 0.3s ease;
+}
+
+.flashcard-end {
+    margin-top: 2rem;
+    text-align: center;
 }
 
 .flashcard {

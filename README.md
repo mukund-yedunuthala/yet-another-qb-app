@@ -23,6 +23,20 @@ A personal MCQ question bank — create, browse, and practice with flashcards. N
 - Statistics view with per-subject breakdown
 - Dark/light theme toggle
 
+## Screenshots
+
+### Dashboard
+
+Stats summary and quick actions.
+
+![Dashboard](docs/screenshots/home.png)
+
+### Subjects
+
+Per-subject progress overview.
+
+![Subject browser](docs/screenshots/subjects.png)
+
 ## Appwrite Setup
 
 Create a project in [Appwrite Console](https://cloud.appwrite.io), then create a database and a collection named `questions` with these fields:

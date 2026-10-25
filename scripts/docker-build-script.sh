@@ -6,7 +6,7 @@ image="yaqba:$version"
 tarball="yaqba_v${version}_amd64.tar.gz"
 
 command -v go >/dev/null || { echo "go is required" >&2; exit 1; }
-command -v npm >/dev/null || { echo "npm is required" >&2; exit 1; }
+command -v pnpm >/dev/null || { echo "pnpm is required" >&2; exit 1; }
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 1; }
 
 export GOCACHE="${GOCACHE:-/tmp/yaqba-go-cache}"

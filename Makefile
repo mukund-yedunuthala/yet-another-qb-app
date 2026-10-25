@@ -1,6 +1,7 @@
 GOCACHE ?= /tmp/yaqba-go-cache
 PORT ?= 5173
 
+# Modified 2026-10-25: use pnpm for JavaScript project commands.
 .PHONY: run test build dist clean
 
 run:
@@ -8,7 +9,7 @@ run:
 
 test:
 	GOCACHE=$(GOCACHE) go test ./...
-	npm test
+	pnpm test
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOCACHE=$(GOCACHE) go build -trimpath -ldflags="-s -w" -o bin/server ./server

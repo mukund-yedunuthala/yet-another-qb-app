@@ -1,3 +1,5 @@
+// Modified 2026-10-25: load Navigo from pnpm and bump the app version to 2.1.2.
+import Navigo from 'navigo';
 import { renderHome } from '../pages/home.js';
 import { renderQuestions } from '../pages/questions.js';
 import { renderCreate } from '../pages/create.js';
@@ -87,7 +89,7 @@ function renderAbout() {
         </ul>
         
         <h2>Version</h2>
-        <p>Version 2.1.1 - October 2026</p>
+        <p>Version 2.1.2 - October 2026</p>
     `;
     updatePageLinks();
 }
@@ -150,7 +152,7 @@ function renderPrivacy() {
         <p>This application uses the following third-party services:</p>
         <ul>
             <li><strong>Appwrite:</strong> Backend database and storage</li>
-            <li><strong>CDN Services:</strong> For loading Oat UI and libraries</li>
+            <li><strong>Bundled libraries:</strong> Oat UI, Navigo, and the Appwrite SDK are packaged with the application and served locally.</li>
         </ul>
         
         <h2>Your Rights</h2>

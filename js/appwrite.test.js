@@ -44,6 +44,12 @@ class Databases {
 }
 
 globalThis.window = {
+  APP_CONFIG: {
+    PUBLIC_APPWRITE_ENDPOINT: '__APPWRITE_ENDPOINT__',
+    PUBLIC_APPWRITE_PROJECT_ID: '__APPWRITE_PROJECT_ID__',
+    PUBLIC_APPWRITE_DATABASE_ID: '__APPWRITE_DATABASE_ID__',
+    PUBLIC_APPWRITE_TABLE_ID: '__APPWRITE_TABLE_ID__',
+  },
   Appwrite: {
     Client,
     Databases,

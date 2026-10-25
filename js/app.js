@@ -1,3 +1,6 @@
+// Modified 2026-10-25: bundle browser dependencies from package.json.
+import '@knadh/oat/oat.min.css';
+import '../css/styles.css';
 import { initRouter } from './router.js';
 
 // Theme toggle functionality

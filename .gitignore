@@ -2,6 +2,7 @@ node_modules
 
 # Output
 /bin/
+/dist/
 *.tar.gz
 /.playwright-mcp
 

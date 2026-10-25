@@ -1,10 +1,13 @@
-const { Client, Databases, ID, Query } = window.Appwrite;
-import { 
-    PUBLIC_APPWRITE_ENDPOINT, 
+// Modified 2026-10-25: load the Appwrite SDK from the pnpm-managed package.
+import * as AppwriteSDK from 'appwrite';
+
+const { Client, Databases, ID, Query } = window.Appwrite ?? AppwriteSDK;
+const {
+    PUBLIC_APPWRITE_ENDPOINT,
     PUBLIC_APPWRITE_PROJECT_ID,
     PUBLIC_APPWRITE_DATABASE_ID,
-    PUBLIC_APPWRITE_TABLE_ID
-} from './config.js';
+    PUBLIC_APPWRITE_TABLE_ID,
+} = window.APP_CONFIG;
 
 const client = new Client();
 

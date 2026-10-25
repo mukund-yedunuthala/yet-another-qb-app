@@ -1,14 +1,12 @@
 FROM scratch
 
+# Modified 2026-10-25: serve the Vite bundle and bump the app version to 2.1.2.
 LABEL maintainer="Mukund Yedunuthala" \
-      version="2.1.1" \
+      version="2.1.2" \
       security.policy="rootless"
 
 COPY bin/server /server
-COPY index.html favicon.svg /app/
-COPY css /app/css
-COPY js /app/js
-COPY pages /app/pages
+COPY dist/ /app/
 
 USER 65532:65532
 

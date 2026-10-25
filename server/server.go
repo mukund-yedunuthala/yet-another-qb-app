@@ -15,7 +15,8 @@ import (
 	"time"
 )
 
-const csp = "default-src 'self'; script-src 'self' cdn.jsdelivr.net unpkg.com 'unsafe-inline'; style-src 'self' cdn.jsdelivr.net; connect-src 'self' https://fra.cloud.appwrite.io; img-src 'self' data:; font-src 'self' cdn.jsdelivr.net; frame-ancestors 'none';"
+// Modified 2026-10-25: serve bundled browser assets from the same origin.
+const csp = "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://fra.cloud.appwrite.io; img-src 'self' data:; font-src 'self'; frame-ancestors 'none';"
 
 var requestSeq uint64
 
@@ -150,10 +151,12 @@ var configNames = []string{
 
 func config(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	fmt.Fprintln(w, "window.APP_CONFIG = {")
 	for _, name := range configNames {
 		value, _ := json.Marshal(env(name))
-		fmt.Fprintf(w, "export const PUBLIC_%s = %s;\n", name, value)
+		fmt.Fprintf(w, "  PUBLIC_%s: %s,\n", name, value)
 	}
+	fmt.Fprintln(w, "};")
 }
 
 func env(name string) string {

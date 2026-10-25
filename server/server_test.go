@@ -1,3 +1,4 @@
+// Modified 2026-10-25: verify the runtime config JavaScript object response.
 package main
 
 import (
@@ -83,10 +84,10 @@ func TestConfigEscapesValuesAndSupportsEnvFallback(t *testing.T) {
 
 	res := request(app(root, discardLogger()), "/js/config.js")
 	body := read(t, res)
-	if !strings.Contains(body, `PUBLIC_APPWRITE_ENDPOINT = "https://example.com/\"quoted\""`) {
+	if !strings.Contains(body, `PUBLIC_APPWRITE_ENDPOINT: "https://example.com/\"quoted\""`) {
 		t.Fatalf("config was not safely encoded: %s", body)
 	}
-	if !strings.Contains(body, `PUBLIC_APPWRITE_PROJECT_ID = "public-project"`) {
+	if !strings.Contains(body, `PUBLIC_APPWRITE_PROJECT_ID: "public-project"`) {
 		t.Fatalf("PUBLIC_ fallback was not used: %s", body)
 	}
 	if got := res.Header.Get("Content-Type"); !strings.Contains(got, "application/javascript") {

@@ -1,18 +1,21 @@
 #!/bin/sh
 set -eu
 
-version=2.1.1
+version=2.1.2
 image="yaqba:$version"
 tarball="yaqba_v${version}_amd64.tar.gz"
 
+# Modified 2026-10-25: use pnpm and bump the app version to 2.1.2.
 command -v go >/dev/null || { echo "go is required" >&2; exit 1; }
 command -v pnpm >/dev/null || { echo "pnpm is required" >&2; exit 1; }
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 1; }
 
 export GOCACHE="${GOCACHE:-/tmp/yaqba-go-cache}"
 
+pnpm install --frozen-lockfile
 go test ./...
-npm test
+pnpm test
+pnpm build
 
 mkdir -p bin
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/server ./server

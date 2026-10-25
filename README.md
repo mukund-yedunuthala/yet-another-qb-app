@@ -1,6 +1,6 @@
 # Yet Another Question Bank App
 
-A personal MCQ question bank — create, browse, and practice with flashcards. No build step, no framework, no dependencies to install.
+A personal MCQ question bank — create, browse, and practice with flashcards. Built with vanilla JavaScript and Vite; browser dependencies are installed and bundled with pnpm.
 
 [![AI-DECLARATION: copilot](https://img.shields.io/badge/䷼%20AI--DECLARATION-copilot-fee2e2?labelColor=fee2e2)](https://ai-declaration.md)
 ![Appwrite](https://img.shields.io/badge/Appwrite-F02E65?style=for-the-badge&logo=appwrite&logoColor=white)
@@ -12,9 +12,10 @@ A personal MCQ question bank — create, browse, and practice with flashcards. N
 
 | Layer | Technology |
 |---|---|
-| UI | [Oat](https://github.com/knadh/oat) (CDN) |
-| Routing | [Navigo](https://github.com/krasimir/navigo) (CDN) |
+| UI | [Oat](https://github.com/knadh/oat) (pnpm package) |
+| Routing | [Navigo](https://github.com/krasimir/navigo) (pnpm package) |
 | Backend | [Appwrite](https://appwrite.io/) cloud |
+| Build | Vite, managed with pnpm |
 | Serving | Go static server (Docker) or any static server |
 
 ## Features
@@ -62,7 +63,12 @@ Set collection permissions according to your access needs. Subjects are derived 
 
 ## Running locally
 
-This is a vanilla JavaScript app with no build step or npm runtime dependencies. Choose one of these serving options:
+<!-- Modified 2026-10-25: document pnpm-managed browser dependencies and Vite builds. -->
+Install the JavaScript dependencies once (Node.js 20.19+ and pnpm 12.15.0 are required):
+
+```sh
+pnpm install --frozen-lockfile
+```
 
 ### Run with the Go server
 
@@ -77,19 +83,20 @@ set +a
 make run
 ```
 
-The Go server dynamically serves `/js/config.js` from environment variables. It accepts both `APPWRITE_*` and `PUBLIC_APPWRITE_*` names. Go is required for this option.
+`make run` builds the frontend with Vite, then starts the Go server. The server dynamically serves `/js/config.js` from environment variables. It accepts both `APPWRITE_*` and `PUBLIC_APPWRITE_*` names. Go is required for this option.
 
 ### Use another static server
 
-For a static server, replace the `__PLACEHOLDER__` tokens in `js/config.js` with your Appwrite credentials; `.env` is not automatically read by static servers. Then serve the directory:
+For a static server, replace the `__PLACEHOLDER__` tokens in `public/js/config.js` with your Appwrite credentials; `.env` is not automatically read by static servers. Build the app and serve `dist/`:
 
 ```sh
-npx serve .
+pnpm build
+pnpm dlx serve dist
 # or
-python -m http.server 5173
+python -m http.server 5173 --directory dist
 ```
 
-Open the URL printed by the server (typically [http://localhost:5173](http://localhost:5173)).
+For development with Vite, run `pnpm dev` after setting the credentials in `public/js/config.js`.
 
 ## Docker
 
@@ -130,15 +137,15 @@ Security headers (`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-
 ## Project structure
 
 ```
-index.html              Single HTML shell — loads CDN deps, defines header/footer
+index.html              Single HTML shell — defines header/footer; Vite injects built assets
+vite.config.js           Vite build configuration
+public/js/config.js      Static Appwrite config; Go server overrides this route at runtime
 js/
-  app.js                Entry point — theme toggle, calls initRouter()
+  app.js                Entry point — imports Oat CSS, theme toggle, calls initRouter()
   router.js             Navigo SPA router; maps URL paths to render functions;
                         also contains inline renderers for /about, /imprint, /privacy
   appwrite.js           All Appwrite CRUD (getQuestions, createQuestion, updateQuestion,
                         deleteQuestion, markAsLearnt, getSubjects, getStats)
-  config.js             Appwrite config constants for local static serving;
-                        Docker serves this path dynamically from env vars
   utils.js              Shared helpers (escHtml for XSS-safe innerHTML interpolation)
 pages/
   home.js               Dashboard with stats summary
@@ -148,6 +155,7 @@ pages/
   flashcards.js         Interactive study mode with shuffle and learnt tracking
   stats.js              Detailed statistics with per-subject breakdown
 css/styles.css          Custom overrides on top of Oat UI
+dist/                   Vite-generated deployable frontend (created by pnpm build)
 server/server.go        Docker static server, env config endpoint, security headers
 ```
 

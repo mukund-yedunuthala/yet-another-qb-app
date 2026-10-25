@@ -4,9 +4,15 @@ This file provides platform-agnostic guidance for coding agents working in this 
 
 ## What This Is
 
-Yet Another Question Bank App (YAQBA) is a vanilla JavaScript single-page app for managing and practicing MCQ questions. It has no build step and no framework.
+Yet Another Question Bank App (YAQBA) is a vanilla JavaScript single-page app for managing and practicing MCQ questions. Vite bundles browser dependencies installed with pnpm; there is no UI framework.
 
 ## Running Locally
+
+Install JavaScript dependencies with Node.js 20.19+ and pnpm 12.15.0:
+
+```sh
+pnpm install --frozen-lockfile
+```
 
 For the Go server (requires Go), copy `.env.example` to `.env` and fill in your Appwrite credentials. `make run` does not load `.env` itself, so export its values first:
 
@@ -19,14 +25,16 @@ set +a
 make run
 ```
 
-The Go server dynamically serves `/js/config.js` from environment variables and accepts `APPWRITE_*` and `PUBLIC_APPWRITE_*` names.
+`make run` builds the frontend with Vite before starting the Go server. The Go server dynamically serves `/js/config.js` from environment variables and accepts `APPWRITE_*` and `PUBLIC_APPWRITE_*` names.
 
-For an external static server, replace the `__PLACEHOLDER__` tokens in `js/config.js` with real Appwrite credentials; static servers do not read `.env`. Then serve the directory, for example:
+For an external static server, replace the `__PLACEHOLDER__` tokens in `public/js/config.js` with real Appwrite credentials; static servers do not read `.env`. Build and serve `dist/`, for example:
 
+<!-- Modified 2026-10-25: document pnpm-based JavaScript tooling. -->
 ```sh
-npx serve .
+pnpm build
+pnpm dlx serve dist
 # or
-python -m http.server 5173
+python -m http.server 5173 --directory dist
 ```
 
 ## Docker
@@ -60,16 +68,15 @@ Security headers and SPA fallback are handled by `server/server.go`. The Dockerf
 ## Architecture
 
 ```text
-index.html          Single HTML shell; loads CDN deps (Oat UI, Appwrite SDK, Navigo).
-                    CDN resources are pinned to exact versions with SRI hashes.
+index.html          Single HTML shell; Vite injects bundled CSS and JavaScript assets.
+vite.config.js      Vite build config; emits deployable assets to dist/.
+public/js/config.js Static Appwrite config; Go server dynamically serves this route in deployments.
 js/
-  app.js            Entry point: theme toggle, calls initRouter().
+  app.js            Entry point: imports Oat CSS, theme toggle, calls initRouter().
   router.js         Navigo SPA router; maps URL paths to render functions; also contains
                     inline renderers for /about, /imprint, and /privacy.
   appwrite.js       All Appwrite CRUD: getQuestions, createQuestion, updateQuestion,
                     deleteQuestion, markAsLearnt, getSubjects, getStats.
-  config.js         Exports Appwrite config constants for local static serving;
-                    Docker serves this path dynamically from environment variables.
   utils.js          Shared helpers, including escHtml() for safe innerHTML interpolation.
 pages/
   home.js           Dashboard with stats summary.
@@ -104,15 +111,15 @@ Subjects are derived by querying all questions and extracting unique `subject` v
 - Keep all Appwrite SDK usage in `js/appwrite.js`; page modules should import from there instead of calling the SDK directly.
 - Never interpolate Appwrite document fields directly into HTML strings. Wrap document fields with `escHtml()` from `js/utils.js`.
 - Numeric and boolean computed values, such as counts, progress percentages, `isCorrect`, and `!q.learnt`, are safe to interpolate without escaping.
-- Preserve the no-build, no-framework model unless the user explicitly asks for a larger architectural change.
-- Do not treat `.env` as client-side configuration. Local static serving requires manually replacing placeholders in `js/config.js`; Docker serves `/js/config.js` dynamically from runtime environment variables.
+- Preserve the vanilla JavaScript/Vite model; do not introduce a UI framework unless explicitly requested.
+- Do not treat `.env` as client-side configuration. Static builds require manually replacing placeholders in `public/js/config.js`; Docker serves `/js/config.js` dynamically from runtime environment variables.
 
 ## License (AGPL-3.0-only)
 
 This project is licensed under the GNU Affero General Public License v3.0 only; see `LICENSE` (fetched verbatim from https://www.gnu.org/licenses/agpl-3.0.txt). Prior versions distributed under MIT remain MIT for those copies; AGPL applies to new versions.
 
 - Keep all new code under AGPL-3.0-only. Do not introduce MIT/BSD/Apache-only headers or relicense files to a permissive license.
-- Only add dependencies with AGPL-compatible licenses (current CDN deps: Oat MIT, Navigo MIT, Appwrite SDK BSD-3-Clause — all compatible as they impose no further restrictions). Do not vendor or bundle GPL-incompatible or proprietary code.
+- Only add dependencies with AGPL-compatible licenses (current browser deps: Oat MIT, Navigo MIT, Appwrite SDK BSD-3-Clause, Vite MIT — all compatible as they impose no further restrictions). Do not vendor or bundle GPL-incompatible or proprietary code.
 - Modified versions run on a network server must prominently offer all remote users the Corresponding Source from a network server at no charge (AGPL §13). Do not remove or hide source-offer UI/links; the Docker image and `make dist` tarball count as conveying and must carry the license and source availability.
 - Preserve copyright and license notices; mark modified files with prominent notices stating the change and date (AGPL §5a).
 - Using Appwrite Cloud as a backend service is not conveying it, but any AGPL-covered change deployed to users triggers the source-offer obligation above.
